@@ -37,7 +37,7 @@ object BoxesScrollBarUI {
   }
 
   def createHorizontalScrollerThumb():ScrollThumbImagePainter = {
-    val images = ArtworkUtils.getImageSet(classOf[BoxesScrollBarUI].getResource("/boxes/swing/icons/HorizontalThumb.png"))
+    val images = ArtworkUtils.getImageSet(IconFactory.resource("HorizontalThumb"))
 
     val disabled = horizontalScrollBarPieces(images.getInactiveImage.getImage)
     val inactive = horizontalScrollBarPieces(images.getActiveImage.getImage)
@@ -50,7 +50,7 @@ object BoxesScrollBarUI {
   }
 
   def createVerticalScrollerThumb():ScrollThumbImagePainter = {
-    val images = ArtworkUtils.getImageSet(classOf[BoxesScrollBarUI].getResource("/boxes/swing/icons/VerticalThumb.png"))
+    val images = ArtworkUtils.getImageSet(IconFactory.resource("VerticalThumb"))
 
     val disabled = verticalScrollBarPieces(images.getInactiveImage.getImage)
     val inactive = verticalScrollBarPieces(images.getActiveImage.getImage)

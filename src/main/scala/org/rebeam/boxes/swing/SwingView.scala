@@ -182,8 +182,8 @@ object SwingView {
 trait SwingView {
   def component():JComponent
 
-  private[boxes] def addUpdate(update: => Unit) = SwingView.addUpdate(this, update)
-  private[boxes] def replaceUpdate(update: => Unit) = SwingView.replaceUpdate(this, update)
+  // private[boxes] def addUpdate(update: => Unit) = SwingView.addUpdate(this, update)
+  // private[boxes] def replaceUpdate(update: => Unit) = SwingView.replaceUpdate(this, update)
 }
 
 

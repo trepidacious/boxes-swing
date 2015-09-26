@@ -22,9 +22,9 @@ import IconSize._
  * http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
  */
 trait IconFactory {
-
-  def icon(size:IconSize, category:String, name:String):Icon
-  def image(size:IconSize, category:String, name:String):Image
+  def image(name: String, resourceClass: Class[_], path: String , extension: String ): Image
+  def icon(name: String, resourceClass: Class[_], path: String, extension: String): Icon
+  def resource(name: String, resourceClass: Class[_], path: String, extension: String): URL 
 }
 
 /**
@@ -43,9 +43,11 @@ trait IconFactory {
 //  }
 //}
 
-object IconFactory {
+object IconFactory extends IconFactory {
 
   val defaultImage = createDefaultImage
+  val defaultPath = "/org/rebeam/boxes/swing/icons/"
+  val defaultExtension = ".png"
 
   private def createDefaultImage() = {
     val image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)
@@ -56,11 +58,13 @@ object IconFactory {
     image
   }
 
-  def image(name:String, resourceClass:Class[_] = classOf[IconFactory], path: String = "/boxes/swing/icons/", extension:String = ".png"):Image = {
-    val resource:URL = resourceClass.getResource(path + name + extension)
-    if (resource != null) {
+  def resource(name: String, resourceClass: Class[_] = classOf[IconFactory], path: String = defaultPath, extension: String = defaultExtension): URL = resourceClass.getResource(path + name + extension)
+
+  def image(name: String, resourceClass: Class[_] = classOf[IconFactory], path: String = defaultPath, extension: String = defaultExtension): Image = {
+    val r = resource(name, resourceClass, path, extension)
+    if (r != null) {
       try {
-        return ImageIO.read(resource)
+        return ImageIO.read(r)
       } catch {
         case _: java.io.IOException => return defaultImage
       }
@@ -69,5 +73,5 @@ object IconFactory {
     }
   }
   
-  def icon(name:String, resourceClass:Class[_] = classOf[IconFactory], path: String = "/boxes/swing/icons/", extension:String = ".png"):Icon = new ImageIcon(image(name, resourceClass, path, extension))
+  def icon(name: String, resourceClass: Class[_] = classOf[IconFactory], path: String = defaultPath, extension: String = defaultExtension): Icon = new ImageIcon(image(name, resourceClass, path, extension))
 }

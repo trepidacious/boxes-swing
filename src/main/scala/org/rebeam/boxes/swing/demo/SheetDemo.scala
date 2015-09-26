@@ -48,20 +48,20 @@ object SheetDemoApp extends App {
 def propertiesSheet(s: Sine) = {
   val nameView = StringView(s.name)
   
-  // val amplitudeView = NumberView(s.amplitude)
-  // val phaseView = NumberView(s.phase)
-  // val enabledView = BooleanView(s.enabled)
+  val amplitudeView = NumberView(s.amplitude)
+  val phaseView = NumberView(s.phase)
+  val enabledView = BooleanView(s.enabled)
   val descriptionView = StringView(s.description, true)
-  // val pointsView = BooleanView(s.points)
+  val pointsView = BooleanView(s.points)
 
   val sheet = SheetBuilder()
   sheet
     .separator("Edit Sine")
     .view("Name", nameView)
-    // .view("Amplitude", amplitudeView)
-    // .view("Phase", phaseView)
-    // .view("Enabled", enabledView)
-    // .view("Points", pointsView)
+    .view("Amplitude", amplitudeView)
+    .view("Phase", phaseView)
+    .view("Enabled", enabledView)
+    .view("Points", pointsView)
     .view("Description", descriptionView, true)
     .panel
 

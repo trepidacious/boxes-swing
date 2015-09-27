@@ -3,8 +3,11 @@ package org.rebeam.boxes.swing.layout
 import java.awt.{CardLayout, BorderLayout, Dimension, Container, Component, LayoutManager}
 import javax.swing.{JPanel, Icon, JComponent}
 import org.rebeam.boxes.core._
+import org.rebeam.boxes.core.reaction._
 import org.rebeam.boxes.swing._
 import org.rebeam.boxes.swing.views._
+import BoxUtils._
+import BoxTypes._
 
 object VerticalTabLayout {
   def apply(tabWidth:Int = 64, tabHeight:Int = 64) = new VerticalTabLayout(tabWidth, tabHeight)
@@ -28,44 +31,46 @@ class VerticalTabLayout(val tabWidth:Int, val tabHeight:Int) extends LayoutManag
 
 }
 
-// case class TabBuilder(toggles: List[Box[Boolean]] = List(), tabComponents: List[JComponent] = List(), contentComponents: List[JComponent] = List())(implicit shelf: Shelf) {
+case class TabBuilder(toggles: List[Box[Boolean]] = List(), tabComponents: List[JComponent] = List(), contentComponents: List[JComponent] = List()) {
 
-//   def add(contents:JComponent, name:Box[String] = BoxNow(""), icon: Box[Option[Icon]] = BoxNow(None), v: Box[Boolean] = BoxNow(toggles.isEmpty)): TabBuilder = {
-//     val view = BooleanView.extended(v, name, Tab, icon, false)
-//     TabBuilder(toggles:::List(v), tabComponents:::List(view.component), contentComponents:::List(contents))
-//   }
+  def add(contents: JComponent, name: Option[Box[String]], icon: Option[Box[Icon]] = None, v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = {
+    val view = BooleanView.extended(v, name, Tab, icon, false)    
+    TabBuilder(toggles:::List(v), tabComponents:::List(view.component), contentComponents:::List(contents))
+  }
 
-//   def addView(contents: SwingView, name: Box[String] = BoxNow(""), icon: Box[Option[Icon]] = BoxNow(None), v: Box[Boolean] = BoxNow(toggles.isEmpty)): TabBuilder = add(contents.component, name, icon, v)
+  def addView(contents: SwingView, name: Option[Box[String]], icon: Option[Box[Icon]] = None, v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = add(contents.component, name, icon, v)
 
-//   def panel(width:Int = 64, height:Int = 64) = {
-//     RadioReaction.now(toggles:_*)
-//     val tabPanel = new JPanel(VerticalTabLayout(width, height))
-//     tabComponents.foreach(c => tabPanel.add(c))
+  def panel(width:Int = 64, height:Int = 64) = {
+    atomic(RadioReaction(toggles))
+    val tabPanel = new JPanel(VerticalTabLayout(width, height))
+    tabComponents.foreach(c => tabPanel.add(c))
 
-//     val cardLayout = new CardLayout()
-//     val contentPanel = new JPanel(cardLayout)
-//     //Blank panel for when nothing is selected
-//     contentPanel.add(new JPanel(), "-1")
-//     contentComponents.zipWithIndex.foreach{case(c, i) => contentPanel.add(c, i.toString)}
+    val cardLayout = new CardLayout()
+    val contentPanel = new JPanel(cardLayout)
 
-//     //Show the selected content panel card
-//     val showCardView = shelf.view(implicit txn => {
-//       val index = toggles.indexWhere(_())
-//       SwingView.replaceUpdate(this, cardLayout.show(contentPanel, index.toString))
-//     })
+    //Blank panel for when nothing is selected
+    contentPanel.add(new JPanel(), "-1")
+    contentComponents.zipWithIndex.foreach{case(c, i) => contentPanel.add(c, i.toString)}
 
-//     val sidePanel = new JPanel(new BorderLayout())
-//     sidePanel.add(tabPanel, BorderLayout.NORTH)
-//     sidePanel.add(TabSpacer(), BorderLayout.CENTER)
+    //Show the selected content panel card
+    val showCardObserver = Observer{ r =>
+      val index = toggles.indexWhere(_(r))
+      SwingView.replaceUpdate(this, cardLayout.show(contentPanel, index.toString))
+    }
+    atomic(observe(showCardObserver))
 
-//     //View would be lost if not retained by panel
-//     val panel = new LinkingJPanel(showCardView, new BorderLayout())
-//     panel.add(sidePanel, BorderLayout.WEST)
-//     panel.add(contentPanel, BorderLayout.CENTER)
-//     panel
-//   }
+    val sidePanel = new JPanel(new BorderLayout())
+    sidePanel.add(tabPanel, BorderLayout.NORTH)
+    sidePanel.add(TabSpacer(), BorderLayout.CENTER)
 
-// }
+    //Observer would be lost if not retained by panel
+    val panel = new LinkingJPanel(showCardObserver, new BorderLayout())
+    panel.add(sidePanel, BorderLayout.WEST)
+    panel.add(contentPanel, BorderLayout.CENTER)
+    panel
+  }
+
+}
 
 class LinkingJPanel(val view: AnyRef, layout: LayoutManager) extends JPanel(layout)
 

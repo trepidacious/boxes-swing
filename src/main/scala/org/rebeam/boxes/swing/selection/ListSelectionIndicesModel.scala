@@ -1,11 +1,10 @@
-package boxes.transact.swing.selection
+package org.rebeam.boxes.swing.selection
 
 import javax.swing.DefaultListSelectionModel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
-import boxes.transact._
 import org.rebeam.boxes.core._
 import org.rebeam.boxes.swing._
 import BoxUtils._

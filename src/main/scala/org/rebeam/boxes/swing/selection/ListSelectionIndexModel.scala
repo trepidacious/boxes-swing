@@ -1,4 +1,4 @@
-package boxes.transact.swing.selection
+package org.rebeam.boxes.swing.selection
 
 import javax.swing.DefaultListSelectionModel
 import javax.swing.JTable

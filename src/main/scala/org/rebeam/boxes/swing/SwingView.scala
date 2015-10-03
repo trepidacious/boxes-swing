@@ -19,6 +19,11 @@ import com.explodingpixels.swingx.EPPanel
 import java.awt.{BorderLayout, AlphaComposite, Dimension, BasicStroke, RenderingHints, Graphics2D, Color, Component}
 import org.rebeam.boxes.swing.icons.IconFactory
 import java.text.DecimalFormat
+import java.util.concurrent.Executor
+
+import org.rebeam.boxes.core._
+import BoxUtils._
+import BoxTypes._
 
 import scala.language.implicitConversions
 
@@ -45,6 +50,10 @@ object SwingView {
   def icon(name:String) = IconFactory.icon(name)
 
   val wrench = icon("Wrench")
+
+  def observer[A](v: Any, script: BoxObserverScript[A])(effect: A => Unit): Observer = Observer(script, effect, new Executor{
+    def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
+  })
 
   def addUpdate(v:Any, update: => Unit) = {
     lock.synchronized{
@@ -181,6 +190,8 @@ object SwingView {
 
 trait SwingView {
   def component():JComponent
+
+  private def observer[A](script: BoxObserverScript[A])(effect: A => Unit): Observer = SwingView.observer(this, script)(effect)
 
   // private[boxes] def addUpdate(update: => Unit) = SwingView.addUpdate(this, update)
   // private[boxes] def replaceUpdate(update: => Unit) = SwingView.replaceUpdate(this, update)

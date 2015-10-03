@@ -36,10 +36,15 @@ class ListSelectionIndicesModel(v: Box[Set[Int]], setFilter: => Boolean, table: 
   })
 
   //Update delegate from Box
-  val observer = Observer { r=> 
-    val newIndices = v(r)
-    SwingView.replaceUpdate (this, handleBoxChange(newIndices))
+  val observer = {
+    import BoxObserverScriptImports._
+    SwingView.observer(this, v()){handleBoxChange(_)}
   }
+
+  atomic{
+    import BoxScriptImports._
+    observe(observer)
+  } 
 
   private def indexToView(i:Int):Option[Int] = {
     try {
@@ -71,6 +76,8 @@ class ListSelectionIndicesModel(v: Box[Set[Int]], setFilter: => Boolean, table: 
   }
 
   private def handleDelegateChange() {
+
+    import BoxScriptImports._
 
     //Skip when we are actually adjusting delegate in this class, so we
     //don't respond to our own changes.

@@ -15,6 +15,9 @@ import javax.swing.JToggleButton.ToggleButtonModel
 import BoxUtils._
 import BoxTypes._
 
+import scalaz._
+import Scalaz._
+
 sealed trait BooleanControlType
 case object Checkbox extends BooleanControlType
 case object ToggleButton extends BooleanControlType
@@ -47,20 +50,25 @@ private class BooleanOptionView[G](v: Box[G], n: Option[Box[String]], c: GConver
 
   private val model = new AutoButtonModel()
 
-  val observer = new Observer {
-    def observe(r: Revision): Unit = {
-      //Store the values for later use on Swing Thread
-      val newV = v(r)
-      val newN = n.map(_(r))
-      val newIcon = icon.map(_(r))
-      //This will be called from Swing Thread
-      SwingView.replaceUpdate(this, display(newV, newN, newIcon))     
-    }
+  //Update delegate from Box
+  val observer = {
+    import BoxObserverScriptImports._
+
+    //TODO use applicative or similar to make this neater
+    val script = for {
+      newV <- v()
+      newN <- n.traverseU{_()}        //With an Option[Box[String]] and a Box[String]=>Script[String] we can get an Option[Script[String]], traverseU gives us a Script[Option[String]] instead, which is what we want
+      newIcon <- icon.traverseU{_()}
+    } yield (newV, newN, newIcon)  
+
+    SwingView.observer(this, script){v => display(v._1, v._2, v._3)}
   }
-  
+
   {
     component.setModel(model)
     component.addActionListener(new ActionListener(){
+      import BoxScriptImports._
+
       //On action, toggle value if it is not None
       override def actionPerformed(e:ActionEvent) = atomic {
         for {
@@ -73,7 +81,10 @@ private class BooleanOptionView[G](v: Box[G], n: Option[Box[String]], c: GConver
       }
     })
     
-    atomic{observe(observer)}
+    atomic{
+      import BoxScriptImports._
+      observe(observer)
+    } 
   }
 
   //Update display if necessary

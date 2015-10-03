@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
 import BoxUtils._
+import BoxScriptImports._
 
 object StringView {
   def apply(v:Box[String], multiline:Boolean = false) = new StringOptionView(v, new TConverter[String], multiline).asInstanceOf[SwingView]
@@ -30,13 +31,9 @@ private class StringOptionView[G](v:Box[G], c:GConverter[G, String], multiline:B
   //TODO need a nice scrollable text area with the minimal scrollbars from ledger view, inside the text area.
   val component = if (multiline) new LinkingTextEPPanel(this, new LinkingTextJScrollPane(this, text)) else text
 
-  val observer = new Observer {
-    def observe(r: Revision): Unit = {
-      //Store the value for later use on Swing Thread
-      val newV = v(r)
-      //This will be called from Swing Thread, replacing any pending update (no point using an old update)
-      SwingView.replaceUpdate(this, display(newV))
-    }
+  val observer = {
+    import BoxObserverScriptImports._
+    SwingView.observer(this, v()){display(_)}
   }
 
   {
@@ -55,10 +52,16 @@ private class StringOptionView[G](v:Box[G], c:GConverter[G, String], multiline:B
       override def focusGained(e:FocusEvent) = display(atomic{v()})
     })
 
-    atomic(observe(observer))
+    atomic{
+      import BoxScriptImports._
+      observe(observer)
+    } 
   }
 
-  private def commit() = atomic{v() = c.toG(text.getText)}
+  private def commit() = {
+    import BoxScriptImports._
+    atomic{v() = c.toG(text.getText)}
+  }
 
   //Update display if necessary
   private def display(s: G) {

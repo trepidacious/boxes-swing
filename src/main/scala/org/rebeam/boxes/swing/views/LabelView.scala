@@ -10,18 +10,22 @@ import java.awt.event.ActionEvent
 import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
 import BoxUtils._
+import BoxScriptImports._
 
 //TODO use a renderer to customise display
 private class LabelOptionView[G](v: Box[G], c: GConverter[G, String]) extends SwingView {
 
   val component = new LinkingJLabel(this)
 
-  val observer = Observer { r =>
-    //Store the value for later use on Swing Thread
-    val newV = v(r)
-    //This will be called from Swing Thread
-    SwingView.replaceUpdate(this, display(newV))
+  val observer = {
+    import BoxObserverScriptImports._
+    SwingView.observer(this, v()){display(_)}
   }
+
+  atomic{
+    import BoxScriptImports._
+    observe(observer)
+  } 
 
   //Update display if necessary
   private def display(s:G) {

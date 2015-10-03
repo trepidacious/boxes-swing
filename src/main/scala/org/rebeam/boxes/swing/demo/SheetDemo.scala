@@ -13,6 +13,8 @@ import java.text.DecimalFormat
 import org.rebeam.boxes.core._
 import BoxUtils._
 import BoxTypes._
+import BoxScriptImports._
+
 
 object SheetDemoApp extends App {
 
@@ -47,6 +49,7 @@ object SheetDemoApp extends App {
   
 def propertiesSheet(s: Sine) = {
   val nameView = StringView(s.name)
+  val nameLabelView = LabelView(s.name)
   
   val amplitudeView = NumberView(s.amplitude)
   val phaseView = NumberView(s.phase)
@@ -58,6 +61,7 @@ def propertiesSheet(s: Sine) = {
   sheet
     .separator("Edit Sine")
     .view("Name", nameView)
+    .view("Name (label)", nameLabelView)
     .view("Amplitude", amplitudeView)
     .view("Phase", phaseView)
     .view("Enabled", enabledView)

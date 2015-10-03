@@ -31,11 +31,15 @@ class ListSelectionIndexModel(v: Box[Option[Int]], setFilter: => Boolean, table:
     }
   })
 
-  //Update delegate from Box
-  val observer = Observer { r => 
-    val newIndex = v(r)
-    SwingView.replaceUpdate(this, handleBoxChange(newIndex))
+  val observer = {
+    import BoxObserverScriptImports._
+    SwingView.observer(this, v()){handleBoxChange(_)}
   }
+
+  atomic{
+    import BoxScriptImports._
+    observe(observer)
+  } 
 
   private def indexToView(i:Int):Option[Int] = {
     try {
@@ -58,6 +62,8 @@ class ListSelectionIndexModel(v: Box[Option[Int]], setFilter: => Boolean, table:
   }
 
   private def handleDelegateChange() {
+    import BoxScriptImports._
+
     //If we can set selection, update the Box to match the delegate
     if (setFilter) {
       //Note that we delay this change to box, so that any pending swing

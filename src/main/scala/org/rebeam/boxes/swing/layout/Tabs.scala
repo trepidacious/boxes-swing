@@ -8,6 +8,7 @@ import org.rebeam.boxes.swing._
 import org.rebeam.boxes.swing.views._
 import BoxUtils._
 import BoxTypes._
+import BoxScriptImports._
 
 object VerticalTabLayout {
   def apply(tabWidth:Int = 64, tabHeight:Int = 64) = new VerticalTabLayout(tabWidth, tabHeight)

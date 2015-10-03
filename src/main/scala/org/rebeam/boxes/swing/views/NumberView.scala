@@ -16,6 +16,7 @@ import java.text.ParseException
 
 import BoxUtils._
 import BoxTypes._
+import BoxScriptImports._
 
 object NumberView {
   def apply[N](v: Box[N])(implicit n: Numeric[N], nc: NumericClass[N]): SwingView = apply(v, nc.defaultSequence)
@@ -46,7 +47,7 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
           try {
             component.commitEdit()
           } catch {
-            case e:ParseException => update(Shelf.currentRevision)
+            case e:ParseException => update(v(Shelf.currentRevision))
           }
         }
 
@@ -56,35 +57,33 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
     }
   }
 
-  val observer = new Observer {
-    def observe(r:Revision): Unit = update(r)
+  val observer = {
+    import BoxObserverScriptImports._
+    SwingView.observer(this, v()){update(_)}
   }
 
-  atomic(observe(observer))
+  atomic{
+    import BoxScriptImports._
+    observe(observer)
+  } 
 
-  def update(r: Revision) = {
-    //Store the values for later use on Swing Thread
-    val newV = v(r)
-    //This will be called from Swing Thread
-    SwingView.replaceUpdate(this, 
-    {
-      c.toOption(newV) match {
-        case None => {
-          component.setEnabled(false)
-          model.fireNewValue(n.zero)
-        }
-        case Some(someNewV) => {
-          component.setEnabled(true)
-          model.fireNewValue(someNewV)
-        }
-      }
-    })
+  def update(newV: G) = c.toOption(newV) match {
+    case None => {
+      component.setEnabled(false)
+      model.fireNewValue(n.zero)
+    }
+    case Some(someNewV) => {
+      component.setEnabled(true)
+      model.fireNewValue(someNewV)
+    }
   }
 
   //FIXME there is an issue with JSpinner where it can end up on a value like 0.21000000000000002,
   //when we decrease this the text component first commits itself as 0.21, then we decrement and hit 0.20.
   //This generates two changes to the viewed Var, which is slightly annoying. 
   private class AutoSpinnerModel extends SpinnerNumberModel {
+    import BoxScriptImports._
+
     private var firing = false
     var currentValue = n.zero
 

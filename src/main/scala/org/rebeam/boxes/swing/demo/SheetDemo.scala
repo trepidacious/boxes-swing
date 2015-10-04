@@ -48,10 +48,12 @@ object SheetDemoApp extends App {
   }
   
 def propertiesSheet(s: Sine) = {
+
   val nameView = StringView(s.name)
   val nameLabelView = LabelView(s.name)
   
   val amplitudeView = NumberView(s.amplitude)
+  val amplitudePieView = PieView(s.amplitude, s.amplitude)
   val phaseView = NumberView(s.phase)
   val enabledView = BooleanView(s.enabled)
   val descriptionView = StringView(s.description, true)
@@ -63,6 +65,7 @@ def propertiesSheet(s: Sine) = {
     .view("Name", nameView)
     .view("Name (label)", nameLabelView)
     .view("Amplitude", amplitudeView)
+    .view("Amplitude (pie/10)", amplitudePieView)
     .view("Phase", phaseView)
     .view("Enabled", enabledView)
     .view("Points", pointsView)

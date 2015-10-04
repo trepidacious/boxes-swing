@@ -24,11 +24,12 @@ object SheetDemoApp extends App {
     amplitude: Box[Double], 
     enabled: Box[Boolean], 
     points: Box[Boolean], 
-    description: Box[String]
+    description: Box[String],
+    lineWidth: Box[Int]
   ) 
 
   object Sine {
-    def default: BoxScript[Sine] = default("", 0d, 1d, true, false, "Default Description\nCan have multiple lines")
+    def default: BoxScript[Sine] = default("", 0d, 1d, true, false, "Default Description\nCan have multiple lines", 1)
 
     def default(
       name: String, 
@@ -36,7 +37,8 @@ object SheetDemoApp extends App {
       amplitude: Double, 
       enabled: Boolean, 
       points: Boolean, 
-      description: String
+      description: String,
+      lineWidth: Int
     ): BoxScript[Sine] = for {
       n <- create(name)
       ph <- create(phase)
@@ -44,7 +46,8 @@ object SheetDemoApp extends App {
       e <- create(enabled)
       p <- create(points)
       d <- create(description)
-    } yield Sine(n, ph, a, e, p, d)
+      lw <- create(lineWidth)
+    } yield Sine(n, ph, a, e, p, d, lw)
   }
   
 def propertiesSheet(s: Sine) = {
@@ -58,6 +61,9 @@ def propertiesSheet(s: Sine) = {
   val enabledView = BooleanView(s.enabled)
   val descriptionView = StringView(s.description, true)
   val pointsView = BooleanView(s.points)
+  val lineWidthView = NumberView(s.lineWidth)
+  val lineWidthRangeView = RangeView(s.lineWidth, 1, 10, false)
+  val lineWidthProgressView = RangeView(s.lineWidth, 1, 10, true)
 
   val sheet = SheetBuilder()
   sheet
@@ -69,6 +75,9 @@ def propertiesSheet(s: Sine) = {
     .view("Phase", phaseView)
     .view("Enabled", enabledView)
     .view("Points", pointsView)
+    .view("Line width", lineWidthView)
+    .view("Line width", lineWidthRangeView)
+    .view("Line width", lineWidthProgressView)
     .view("Description", descriptionView, true)
     .panel
 

@@ -32,3 +32,5 @@ scalacOptions ++= Seq(
 )
 
 testOptions in Test += Tests.Argument("-oDF")
+
+fork in run := true

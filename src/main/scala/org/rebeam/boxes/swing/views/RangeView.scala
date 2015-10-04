@@ -55,37 +55,41 @@ private class RangeOptionView[G](v: Box[G], min: Int, max: Int, c: GConverter[G,
   } 
 
   private class AutoBoundedRangeModel(min: Int, max: Int) extends DefaultBoundedRangeModel(min, 0, min, max) {
+    import BoxScriptImports._
 
+    private var firing = false
     private var currentValue = 0
 
-    def fireNewValue(i:Int) = {
+    def fireNewValue(newValue: Int) = {
       //If necessary, extend range to cover value we have seen
-      if (i < getMinimum) setMinimum(i)
-      if (i > getMaximum) setMaximum(i)
+      if (newValue < getMinimum) setMinimum(newValue)
+      if (newValue > getMaximum) setMaximum(newValue)
 
-      currentValue = i
-      fireStateChanged
+      currentValue = newValue
+      firing = true
+      fireStateChanged()
+      firing = false
     }
 
     override def getValue = currentValue
 
     override def getExtent = 0
 
-    override def setValue(n: Int) = currentValue = n
+    override def setValue(n: Int): Unit = {
+      //Don't respond to our own changes, or incorrect classes
+      if (!firing) {
+        currentValue = n
 
-    override def setValueIsAdjusting(b:Boolean) = {
-      super.setValueIsAdjusting(b)
-      import BoxScriptImports._
-      atomic {
-        for {
-          vNow <- v()
-          _ <- c.toOption(vNow) match {
-            case None => nothing
-            case Some(_) => v() = c.toG(currentValue)
-          }
-        } yield ()
+        atomic {
+          for {
+            vNow <- v()
+            _ <- c.toOption(vNow) match {
+              case None => nothing
+              case Some(_) => v() = c.toG(currentValue)
+            }
+          } yield ()
+        }
       }
     }
   }
-
 }

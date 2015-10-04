@@ -192,117 +192,11 @@ trait SwingView {
   def component():JComponent
 
   private def observer[A](script: BoxObserverScript[A])(effect: A => Unit): Observer = SwingView.observer(this, script)(effect)
-
-  // private[boxes] def addUpdate(update: => Unit) = SwingView.addUpdate(this, update)
-  // private[boxes] def replaceUpdate(update: => Unit) = SwingView.replaceUpdate(this, update)
 }
-
-
-// object EmbossedLabelView {
-//   def apply(v:Box[String,_]) = {
-//     val view = new LabelOptionView(v, new TConverter[String])
-//     view.component.setUI(new EmbossedLabelUI())
-//     view.asInstanceOf[SwingView]
-//   }
-// }
-
-// object EmbossedLabelOptionView {
-//   def apply(v:Box[Option[String],_]) = {
-//     val view = new LabelOptionView(v, new OptionTConverter[String]) 
-//     view.component.setUI(new EmbossedLabelUI())
-//     view.asInstanceOf[SwingView]
-//   }
-// }
-
-// object LabelView {
-//   def apply(v:Box[String,_]) = new LabelOptionView(v, new TConverter[String]).asInstanceOf[SwingView]
-// }
-
-// object LabelOptionView {
-//   def apply(v:Box[Option[String],_]) = new LabelOptionView(v, new OptionTConverter[String]).asInstanceOf[SwingView]
-// }
-
-// //TODO use a renderer to customise display
-// private class LabelOptionView[G](v:Box[G,_], c:GConverter[G, String]) extends SwingView {
-
-//   val component = new LinkingJLabel(this)
-
-//   val view = View{
-//     //Store the value for later use on Swing Thread
-//     val newV = v()
-//     //This will be called from Swing Thread
-//     replaceUpdate {display(newV)}
-//   }
-
-//   //Update display if necessary
-//   private def display(s:G) {
-//     val text = c.toOption(s) match {
-//       case None => ""
-//       case Some(string) => string
-//     }
-//     if (!component.getText.equals(text)) {
-//       component.setText(text)
-//     }
-//   }
-// }
 
 //Special versions of components that link back to the SwingView using them,
 //so that if users only retain the component, they still also retain the SwingView.
 class LinkingJLabel(val sv:SwingView) extends Label {}
-
-// object StringView {
-//   def apply(v:VarBox[String,_], multiline:Boolean = false) = new StringOptionView(v, new TConverter[String], multiline).asInstanceOf[SwingView]
-// }
-
-// object StringOptionView {
-//   def apply(v:VarBox[Option[String],_], multiline:Boolean = false) = new StringOptionView(v, new OptionTConverter[String], multiline).asInstanceOf[SwingView]
-// }
-
-// private class StringOptionView[G](v:VarBox[G,_], c:GConverter[G, String], multiline:Boolean) extends SwingView {
-
-//   val text = if (multiline) new BoxesJTextArea(1, 1) else new LinkingJTextField(this)
-//   //TODO need a nice scrollable text area with the minimal scrollbars from ledger view, inside the text area.
-//   val component = if (multiline) new LinkingTextEPPanel(this, new LinkingTextJScrollPane(this, text)) else text
-
-//   {
-//     if (multiline) {
-//       component.setMinimumSize(new Dimension(50, 100))
-//       component.setPreferredSize(new Dimension(50, 100))
-//     } else {
-//       text.asInstanceOf[JTextField].addActionListener(new ActionListener() {
-//         override def actionPerformed(e:ActionEvent) = commit
-//       })
-//     }
-
-//     text.addFocusListener(new FocusListener() {
-//       override def focusLost(e:FocusEvent) = commit
-//       override def focusGained(e:FocusEvent) = display(v())
-//     })
-//   }
-
-//   val view = View{
-//     //Store the value for later use on Swing Thread
-//     val newV = v()
-//     //This will be called from Swing Thread
-//     replaceUpdate {display(newV)}
-//   }
-
-//   private def commit = {
-//     v() = c.toG(text.getText)
-//   }
-
-//   //Update display if necessary
-//   private def display(s:G) {
-//     val enableAndText = c.toOption(s) match {
-//       case None => (false, "")
-//       case Some(string) => (true, string)
-//     }
-//     text.setEnabled(enableAndText._1)
-//     if (!text.getText.equals(enableAndText._2)) {
-//       text.setText(enableAndText._2)
-//     }
-//   }
-// }
 
 class LinkingTextEPPanel(val sv:SwingView, contents:Component) extends EPPanel {
   setBackgroundPainter(new TextComponentPainter())
@@ -333,15 +227,6 @@ class BoxesJTextArea(r:Int, c:Int) extends JTextArea(r, c) {
   BoxesTextAreaUI(this)
 }
 
-
-// object BooleanView {
-//   def apply(v:VarBox[Boolean,_], n:Box[String,_] = Val(""), controlType:BooleanControlType = SLIDECHECK, icon:Box[Option[Icon], _] = Val(None), toggle:Boolean = true) = new BooleanOptionView(v, n, new TConverter[Boolean], controlType, icon, toggle).asInstanceOf[SwingView]
-// }
-
-// object BooleanOptionView {
-//   def apply(v:VarBox[Option[Boolean],_], n:Box[String,_] = Val(""), controlType:BooleanControlType = SLIDECHECK, icon:Box[Option[Icon], _] = Val(None), toggle:Boolean = true) = new BooleanOptionView(v, n, new OptionTConverter[Boolean], controlType, icon, toggle).asInstanceOf[SwingView]
-// }
-
 object Label {
   def apply(text:String, icon:Option[Icon] = None, horizontalAlignment:Int = SwingConstants.LEFT) = new Label(text, icon, horizontalAlignment)
 }
@@ -351,73 +236,6 @@ class Label(text:String="", icon:Option[Icon] = None, horizontalAlignment:Int = 
     setBorder(new EmptyBorder(7, 2, 6, 2))
   }
 }
-
-// private class BooleanOptionView[G](v:VarBox[G,_], n:Box[String,_], c:GConverter[G, Boolean], controlType:BooleanControlType, icon:Box[Option[Icon], _], toggle:Boolean = true) extends SwingView {
-
-//   val component = controlType match {
-//     case CHECKBOX => new LinkingJCheckBox(this)
-//     case RADIO => new LinkingJRadioButton(this)
-//     case TOGGLEBUTTON => new LinkingJToggleButton(this)
-//     case TOOLBARBUTTON => new LinkingToolbarToggleButton(this)
-//     case SLIDECHECK => new LinkingSlideCheckButton(this)
-//     case TAB => new LinkingTabButton(this)
-//   }
-
-//   private val model = new AutoButtonModel()
-
-//   {
-//     component.setModel(model)
-//     component.addActionListener(new ActionListener(){
-//       //On action, toggle value if it is not None
-//       override def actionPerformed(e:ActionEvent) = {
-//         c.toOption(v()) match {
-//           case None => None
-//           case Some(b) => v() = if (toggle) c.toG(!b) else c.toG(true)
-//         }
-//       }
-//     })
-//   }
-
-//   val view = View{
-//     //Store the values for later use on Swing Thread
-//     val newV = v()
-//     val newN = n()
-//     val newIcon = icon()
-//     //This will be called from Swing Thread
-//     replaceUpdate { display(newV, newN, newIcon) }
-//   }
-
-//   //Update display if necessary
-//   private def display(newV:G, newN:String, newIcon:Option[Icon]) {
-//     c.toOption(newV) match {
-//       case None => {
-//         model.enabled = false
-//         model.selected = false
-//       }
-//       case Some(b) => {
-//         model.enabled = true
-//         model.selected = b
-//       }
-//     }
-//     model.fire
-//     if (newN != component.getText) {
-//       component.setText(newN)
-//     }
-//     val iconOrNull = newIcon.getOrElse(null)
-//     if (iconOrNull != component.getIcon) {
-//       component.setIcon(iconOrNull)
-//     }
-//   }
-
-//   private class AutoButtonModel extends ToggleButtonModel {
-//     var enabled = true
-//     var selected = true
-//     def fire() = fireStateChanged()
-//     override def isSelected = selected
-//     override def isEnabled = enabled
-//   }
-
-// }
 
 class LinkingSlideCheckButton(val sv:SwingView) extends SlideCheckButton
 
@@ -431,67 +249,7 @@ class LinkingJToggleButton(val sv:SwingView) extends SwingToggleButton
 
 class LinkingToolbarToggleButton(val sv:SwingView) extends SwingBarToggleButton
 
-// object RangeView {
-//   def apply(v:VarBox[Int,_], min:Int, max:Int, progress:Boolean = false) = new RangeOptionView(v, min, max, new TConverter[Int], progress).asInstanceOf[SwingView]
-// }
 
-// object RangeOptionView {
-//   def apply(v:VarBox[Option[Int],_], min:Int, max:Int, progress:Boolean = false) = new RangeOptionView(v, min, max, new OptionTConverter[Int], progress).asInstanceOf[SwingView]
-// }
-
-// private class RangeOptionView[G](v:VarBox[G,_], min:Int, max:Int, c:GConverter[G, Int], progress:Boolean) extends SwingView {
-
-//   private val model = new AutoBoundedRangeModel(min, max)
-//   val component = if (!progress) new LinkingJSlider(this, model) else new LinkingJProgressBar(this, model)
-
-//   val view = View{
-//     //Store the values for later use on Swing Thread
-//     val newV = v()
-//     //This will be called from Swing Thread
-//     replaceUpdate {
-//       c.toOption(newV) match {
-//         case None => {
-//           component.setEnabled(false)
-//           model.fireNewValue(model.getMinimum)
-//         }
-//         case Some(i) => {
-//           component.setEnabled(true)
-//           model.fireNewValue(i)
-//         }
-//       }
-//     }
-//   }
-
-//   private class AutoBoundedRangeModel(min:Int, max:Int) extends DefaultBoundedRangeModel(min, 0, min, max) {
-
-//     private var currentValue = 0
-
-//     def fireNewValue(i:Int) = {
-//       //If necessary, extend range to cover value we have seen
-//       if (i < getMinimum) setMinimum(i)
-//       if (i > getMaximum) setMaximum(i)
-//       currentValue = i
-
-//       fireStateChanged
-//     }
-
-//     override def getValue = currentValue
-
-//     override def getExtent = 0
-
-//     override def setValue(n:Int) = currentValue = n
-
-//     override def setValueIsAdjusting(b:Boolean) = {
-//       super.setValueIsAdjusting(b)
-//       c.toOption(v()) match {
-//         case None => None
-//         case Some(_) => v() = c.toG(currentValue)
-//       }
-//     }
-
-//   }
-
-// }
 
 class LinkingJSlider(val sv:SwingView, brm:BoundedRangeModel) extends JSlider(brm) {
   {

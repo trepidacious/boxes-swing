@@ -87,7 +87,7 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
     private var firing = false
     var currentValue = n.zero
 
-    def fireNewValue(newValue:N) = {
+    def fireNewValue(newValue: N) = {
       currentValue = newValue
 
       //TODO - why DOES fireStateChanged end up calling setValue? can we stop it
@@ -103,7 +103,7 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
     override def getPreviousValue = s.previous(currentValue).asInstanceOf[Object]
     override def getValue = currentValue.asInstanceOf[Object]
 
-    override def setValue(spinnerValue:Object) {
+    override def setValue(spinnerValue: Object) {
       //Don't respond to our own changes, or incorrect classes
       if (!firing && nc.javaWrapperClass.isAssignableFrom(spinnerValue.getClass)) {
         currentValue = spinnerValue.asInstanceOf[N]

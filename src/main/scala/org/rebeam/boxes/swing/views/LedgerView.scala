@@ -202,13 +202,14 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val 
   val observer = {
     val script = for {
       l <- ledger()
-      scale = l.recordCount.asInstanceOf[Double]
+      scale <- l.recordCount
       is <- indices()
     } yield (scale, is)
     SwingView.observer(this, script){ case (scale, is) =>
-      val viewIndices = is.map(i => indexToView(i)).filter(i=>i>=0).toList.sorted
+      val viewIndices = is.map(i => indexToView(i)).filter(i => i >= 0).toList.sorted
       val viewRuns = encodeDirect(viewIndices)
-      val viewRunsScaled = viewRuns.map(run => (run._1/scale, (run._1 + run._2)/scale))
+      val scaleDouble = scale.toDouble
+      val viewRunsScaled = viewRuns.map(run => (run._1/scaleDouble, (run._1 + run._2)/scaleDouble))
 
       dotModel.positions = viewRunsScaled.toSet
     }

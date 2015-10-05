@@ -18,6 +18,7 @@ import Scalaz._
 
 import BoxTypes._
 import BoxUtils._
+import BoxScriptImports._
 
 private class BoxesPopupButtonHandler(popupComponent: Component, focusComponent: Option[Component], invoker: Component) extends WindowListener with ComponentListener {
 
@@ -133,7 +134,6 @@ class PopupView(n: Box[String], icon: Option[Box[Icon]] = None, popupContents: J
   val component: JToggleButton = new ToolbarPopupButton(this)
 
   val observer = {
-    import BoxObserverScriptImports._
     val script = for {
       newN <- n()
       newIcon <- icon.traverseU(_())
@@ -141,10 +141,7 @@ class PopupView(n: Box[String], icon: Option[Box[Icon]] = None, popupContents: J
     SwingView.observer(this, script){v => display(v._1, v._2)}
   }
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic { observe(observer) } 
 
   //Update display if necessary
   private def display(newN: String, newIcon: Option[Icon]) {

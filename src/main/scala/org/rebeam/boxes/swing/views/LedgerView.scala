@@ -23,6 +23,8 @@ import org.rebeam.boxes.swing._
 import BoxUtils._
 import BoxTypes._
 
+import BoxScriptImports._
+
 import scalaz._
 import Scalaz._
 
@@ -199,7 +201,6 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val 
 
   //FIXME applicative?
   val observer = {
-    import BoxObserverScriptImports._
     val script = for {
       l <- ledger()
       scale = l.recordCount.asInstanceOf[Double]
@@ -255,7 +256,6 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
   var lastRecordCount: Option[Int] = None
   
   class LedgerTableModel extends AbstractTableModel {
-    import BoxObserverScriptImports._
     override def getColumnClass(columnIndex:Int) = atomic { 
       v().flatMap(_.fieldClass(columnIndex)) 
     }
@@ -288,8 +288,6 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
   val component = new LinkingJTable(this, model)
   
   val observer = {
-    import BoxObserverScriptImports._
-
     val script = for {
       l <- v()
       rc <- l.recordCount

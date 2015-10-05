@@ -18,6 +18,7 @@ import java.awt.{Component, Graphics2D}
 
 import BoxUtils._
 import BoxTypes._
+import BoxScriptImports._
 
 object PieView {
   def apply(n:Box[Double], a:Box[Double]) = new PieOptionView(n, new TConverter[Double], a, new TConverter[Double]).asInstanceOf[SwingView]
@@ -48,8 +49,6 @@ private class PieOptionView[G, H](n: Box[G], c: GConverter[G, Double], a: Box[H]
 
   //Update delegate from Box
   val observer = {
-    import BoxObserverScriptImports._
-
     //TODO use applicative or similar to make this neater
     val script = for {
       newN <- n()
@@ -63,9 +62,6 @@ private class PieOptionView[G, H](n: Box[G], c: GConverter[G, Double], a: Box[H]
     }}
   }
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic{ observe(observer) } 
 
 }

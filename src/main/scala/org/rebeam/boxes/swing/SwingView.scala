@@ -24,6 +24,7 @@ import java.util.concurrent.Executor
 import org.rebeam.boxes.core._
 import BoxUtils._
 import BoxTypes._
+import BoxScriptImports._
 
 import scala.language.implicitConversions
 
@@ -51,7 +52,7 @@ object SwingView {
 
   val wrench = icon("Wrench")
 
-  def observer[A](v: Any, script: BoxObserverScript[A])(effect: A => Unit): Observer = Observer(script, effect, new Executor{
+  def observer[A](v: Any, script: BoxScript[A])(effect: A => Unit): Observer = Observer(script, effect, new Executor{
     def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
   })
 
@@ -191,7 +192,7 @@ object SwingView {
 trait SwingView {
   def component():JComponent
 
-  private def observer[A](script: BoxObserverScript[A])(effect: A => Unit): Observer = SwingView.observer(this, script)(effect)
+  private def observer[A](script: BoxScript[A])(effect: A => Unit): Observer = SwingView.observer(this, script)(effect)
 }
 
 //Special versions of components that link back to the SwingView using them,

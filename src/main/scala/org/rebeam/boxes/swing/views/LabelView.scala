@@ -17,10 +17,7 @@ private class LabelOptionView[G](v: Box[G], c: GConverter[G, String]) extends Sw
 
   val component = new LinkingJLabel(this)
 
-  val observer = {
-    import BoxObserverScriptImports._
-    SwingView.observer(this, v()){display(_)}
-  }
+  val observer = SwingView.observer(this, v()){display(_)}
 
   atomic{
     import BoxScriptImports._

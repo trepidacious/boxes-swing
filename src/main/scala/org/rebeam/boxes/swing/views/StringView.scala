@@ -31,10 +31,7 @@ private class StringOptionView[G](v:Box[G], c:GConverter[G, String], multiline:B
   //TODO need a nice scrollable text area with the minimal scrollbars from ledger view, inside the text area.
   val component = if (multiline) new LinkingTextEPPanel(this, new LinkingTextJScrollPane(this, text)) else text
 
-  val observer = {
-    import BoxObserverScriptImports._
-    SwingView.observer(this, v()){display(_)}
-  }
+  val observer = SwingView.observer(this, v()){display(_)}
 
   {
     if (multiline) {
@@ -53,15 +50,11 @@ private class StringOptionView[G](v:Box[G], c:GConverter[G, String], multiline:B
     })
 
     atomic{
-      import BoxScriptImports._
       observe(observer)
     } 
   }
 
-  private def commit() = {
-    import BoxScriptImports._
-    atomic{v() = c.toG(text.getText)}
-  }
+  private def commit() = atomic{v() = c.toG(text.getText)}
 
   //Update display if necessary
   private def display(s: G) {

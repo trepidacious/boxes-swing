@@ -57,15 +57,9 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
     }
   }
 
-  val observer = {
-    import BoxObserverScriptImports._
-    SwingView.observer(this, v()){update(_)}
-  }
+  val observer = SwingView.observer(this, v()){update(_)}
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic { observe(observer) } 
 
   def update(newV: G) = c.toOption(newV) match {
     case None => {

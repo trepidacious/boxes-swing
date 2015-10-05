@@ -33,26 +33,20 @@ private class RangeOptionView[G](v: Box[G], min: Int, max: Int, c: GConverter[G,
 
   val component = if (!progress) new LinkingJSlider(this, model) else new LinkingJProgressBar(this, model)
 
-  val observer = {
-    import BoxObserverScriptImports._
-    SwingView.observer(this, v()){
-      c.toOption(_) match {
-        case None => {
-          component.setEnabled(false)
-          model.fireNewValue(model.getMinimum)
-        }
-        case Some(i) => {
-          component.setEnabled(true)
-          model.fireNewValue(i)
-        }
-      }      
-    }
+  val observer = SwingView.observer(this, v()){
+    c.toOption(_) match {
+      case None => {
+        component.setEnabled(false)
+        model.fireNewValue(model.getMinimum)
+      }
+      case Some(i) => {
+        component.setEnabled(true)
+        model.fireNewValue(i)
+      }
+    }      
   }
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic { observe(observer) } 
 
   private class AutoBoundedRangeModel(min: Int, max: Int) extends DefaultBoundedRangeModel(min, 0, min, max) {
     import BoxScriptImports._

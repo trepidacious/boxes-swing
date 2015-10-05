@@ -8,6 +8,7 @@ import javax.swing.event.ListSelectionListener
 import org.rebeam.boxes.core._
 import org.rebeam.boxes.swing._
 import BoxUtils._
+import BoxScriptImports._
 
 /**
  * View/edit a Box[Int] as the selected index of a ListSelectionModel
@@ -31,15 +32,9 @@ class ListSelectionIndexModel(v: Box[Option[Int]], setFilter: => Boolean, table:
     }
   })
 
-  val observer = {
-    import BoxObserverScriptImports._
-    SwingView.observer(this, v()){handleBoxChange(_)}
-  }
+  val observer = SwingView.observer(this, v()){handleBoxChange(_)}
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic { observe(observer) } 
 
   private def indexToView(i:Int):Option[Int] = {
     try {
@@ -62,7 +57,6 @@ class ListSelectionIndexModel(v: Box[Option[Int]], setFilter: => Boolean, table:
   }
 
   private def handleDelegateChange() {
-    import BoxScriptImports._
 
     //If we can set selection, update the Box to match the delegate
     if (setFilter) {

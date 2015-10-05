@@ -15,6 +15,8 @@ import javax.swing.JToggleButton.ToggleButtonModel
 import BoxUtils._
 import BoxTypes._
 
+import BoxScriptImports._
+
 import scalaz._
 import Scalaz._
 
@@ -52,8 +54,6 @@ private class BooleanOptionView[G](v: Box[G], n: Option[Box[String]], c: GConver
 
   //Update delegate from Box
   val observer = {
-    import BoxObserverScriptImports._
-
     //TODO use applicative or similar to make this neater
     val script = for {
       newV <- v()
@@ -67,8 +67,6 @@ private class BooleanOptionView[G](v: Box[G], n: Option[Box[String]], c: GConver
   {
     component.setModel(model)
     component.addActionListener(new ActionListener(){
-      import BoxScriptImports._
-
       //On action, toggle value if it is not None
       override def actionPerformed(e:ActionEvent) = atomic {
         for {
@@ -81,10 +79,7 @@ private class BooleanOptionView[G](v: Box[G], n: Option[Box[String]], c: GConver
       }
     })
     
-    atomic{
-      import BoxScriptImports._
-      observe(observer)
-    } 
+    atomic { observe(observer) } 
   }
 
   //Update display if necessary

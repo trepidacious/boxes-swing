@@ -87,22 +87,17 @@ object LedgerDemoApp extends App {
     val add = new JButton(new AbstractAction("Add") {
       override def actionPerformed(e:ActionEvent) = atomic {
         for {
-          n <- next()
+          //Get value of n, then modify to n + 1
+          n <- next.modify(_ + 1) 
           p <- Person.default("New item " + n, 20 + n)
-          _ <- next() = n + 1
-          l <- list()
-          _ <- list() = IndexedSeq(p) ++ l
+          //Prepend person to list
+          _ <- list.modify(p +: _)
         } yield ()
       }
     })
 
     val delete = new JButton(new AbstractAction("Delete") {
-      override def actionPerformed(e:ActionEvent) = atomic {
-        for {
-          l <- list()
-          _ <- if (!l.isEmpty) list() = l.tail else nothing          
-        } yield ()
-      }
+      override def actionPerformed(e:ActionEvent) = atomic { list.modify(l => if (!l.isEmpty) l.tail else l) }
     })
 
     val frame = new JFrame()
@@ -123,5 +118,5 @@ object LedgerDemoApp extends App {
     SwingView.nimbus
     ledger
   }
-  
+
 }

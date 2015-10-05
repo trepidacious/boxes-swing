@@ -191,7 +191,6 @@ object LedgerView {
 //  }
 }
 
-
 class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val indices: Box[Set[Int]]) extends SwingView {
   val component = new LinkingJScrollPane(this, ledgerView.component)
   val dotModel = new DotModel()
@@ -215,10 +214,7 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val 
     }
   }
 
-  atomic{
-    import BoxScriptImports._
-    observe(observer)
-  } 
+  atomic { observe(observer) } 
 
   //Convert a sorted list of ints to a list of starts and lengths of runs of ints
   def encodeDirect(list:List[Int]) : List[(Int,Int)] = {
@@ -292,51 +288,47 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
       l <- v()
       rc <- l.recordCount
       fc <- l.fieldCount
-      fieldNames <- Range(0, fc).toList.traverseU(l.fieldName(_))
-      fieldClasses <- Range(0, fc).toList.traverseU(l.fieldClass(_))
+      columnIndices = Range(0, fc).toList 
+      fieldNames <- columnIndices.traverseU(l.fieldName(_))
+      fieldClasses <- columnIndices.toList.traverseU(l.fieldClass(_))
+
       //Read all ledger contents - not neat, but means we receive updates. 
       //Might be best just to cache it all but probably doesn't make much difference
-      // for (r <- 0 until ledger.recordCount) {
-      //   for (f <- 0 until ledger.fieldCount) {
-      //     ledger(r, f)
-      //     ledger.editable(r, f)
-      //   }
-      // }
+      cellAddresses = (for (r <- Range(0, rc); f <- Range(0, fc)) yield (r, f)).toList
+      cells <- cellAddresses.traverseU(a => l(a._1, a._2))
+      editabilities <- cellAddresses.traverseU(a => l.editable(a._1, a._2))
 
     } yield (l, rc, fc, fieldNames, fieldClasses)
 
-    SwingView.observer(this, script){ v => {
+    SwingView.observer(this, script){ case (l, rc, fc, fieldNames, fieldClasses) => {
 
+      //Check for column changes
+      val columnsChanged = (lastFieldNames, lastFieldClasses) match {
+        case (Some(lfn), Some(lfc)) => (lfn != fieldNames || lfc != fieldClasses)
+        case _ => true
+      }      
+      lastFieldNames = Some(fieldNames.toList)
+      lastFieldClasses = Some(fieldClasses.toList)
 
-      // val rowCountChanged = (lastFieldNames, lastFieldClasses) match {
-      //   case (Some(lfn), Some(lfc)) => (lfn != fieldNames || lfc != fieldClasses)
-      //   case _ => true
-      // }
-      
-      // lastFieldNames = Some(fieldNames.toList)
-      // lastFieldClasses = Some(fieldClasses.toList)
-
-      // val columnsChanged = lastRecordCount match {
-      //   case Some(lrc) => lrc != rc
-      //   case _ => true
-      // }
-      // lastRecordCount = Some(rc)
+      //Check for row count change
+      val rowCountChanged = lastRecordCount match {
+        case Some(lrc) => lrc != rc
+        case _ => true
+      }
+      lastRecordCount = Some(rc)
  
-      // if (columnsChanged) {
-      //   model.fireTableStructureChanged()
-      // } else if (rowCountChanged) {
-      //   model.fireTableDataChanged()
-      // } else {
-      //   model.fireTableRowsUpdated(0, rc - 1)
-      // }
-()
+      //Fire events suitable for observed changes
+      if (columnsChanged) {
+        model.fireTableStructureChanged()
+      } else if (rowCountChanged) {
+        model.fireTableDataChanged()
+      } else {
+        model.fireTableRowsUpdated(0, rc - 1)
+      }
     }}
   }
 
-  // atomic{
-  //   import BoxScriptImports._
-  //   observe(observer)
-  // } 
+  atomic { observe(observer) } 
 
   def defaultEditor(columnClass:Class[_]) = component.getDefaultEditor(columnClass)
   def defaultRenderer(columnClass:Class[_]) = component.getDefaultRenderer(columnClass)

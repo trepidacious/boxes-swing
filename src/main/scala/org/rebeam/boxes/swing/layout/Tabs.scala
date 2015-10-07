@@ -73,5 +73,3 @@ case class TabBuilder(toggles: List[Box[Boolean]] = List(), tabComponents: List[
 
 }
 
-class LinkingJPanel(val view: AnyRef, layout: LayoutManager) extends JPanel(layout)
-

@@ -14,8 +14,8 @@ import java.util.EventObject
 import org.rebeam.boxes.swing.icons.IconFactory
 
 /**
- * Implements a {@link CellEditor} that uses a {@link JFormattedTextField}
- * to edit {@link Number} values.
+ * Implements a cell editor that uses a JFormattedTextField
+ * to edit Number values.
  */
 class NumberCellEditor[N](val ftf: JFormattedTextField, val requiredContentsDescription: String)(implicit val numericClass: NumericClass[N]) extends DefaultCellEditor(ftf) {
 

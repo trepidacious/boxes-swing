@@ -16,7 +16,7 @@ object IconSize {
 import IconSize._
 
 /**
- * Factory creating {@link Icon} and {@link Image} instances
+ * Factory creating icon and image instances
  * according to a size, category and name. This ties in well
  * with standard icon libraries using the standards at
  * http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
@@ -28,7 +28,7 @@ trait IconFactory {
 }
 
 /**
- * An {@link IconFactory} loading images as png's stored
+ * An icon factory loading images as png's stored
  * in a standard directory structure and retrieved as resources
  * relative to a given class
  */

@@ -14,12 +14,13 @@ import javax.swing.border.{EmptyBorder, MatteBorder}
 import javax.swing.table.{TableModel, TableCellRenderer, TableCellEditor, AbstractTableModel}
 import javax.swing.event.{TableModelEvent, ChangeEvent, TableColumnModelEvent}
 import org.rebeam.boxes.core.util.{GConverter, OptionTConverter, TConverter, CoalescingResponder, Sequence}
-import javax.swing.{ScrollPaneConstants, JTable, JSpinner, SpinnerModel, SpinnerNumberModel, JProgressBar, JSlider, BoundedRangeModel, DefaultBoundedRangeModel, SwingConstants, Icon, JTextArea, JScrollPane, JTextField, JLabel, JComponent, ImageIcon, UIManager, SwingUtilities}
+import javax.swing.{JPanel, ScrollPaneConstants, JTable, JSpinner, SpinnerModel, SpinnerNumberModel, JProgressBar, JSlider, BoundedRangeModel, DefaultBoundedRangeModel, SwingConstants, Icon, JTextArea, JScrollPane, JTextField, JLabel, JComponent, ImageIcon, UIManager, SwingUtilities}
 import com.explodingpixels.swingx.EPPanel
 import java.awt.{BorderLayout, AlphaComposite, Dimension, BasicStroke, RenderingHints, Graphics2D, Color, Component}
 import org.rebeam.boxes.swing.icons.IconFactory
 import java.text.DecimalFormat
 import java.util.concurrent.Executor
+import java.awt.LayoutManager
 
 import org.rebeam.boxes.core._
 import BoxUtils._
@@ -341,6 +342,8 @@ object BoxesScrollPane {
     scroll
   }
 }
+
+class LinkingJPanel(val view: AnyRef, layout: LayoutManager) extends JPanel(layout)
 
 
 

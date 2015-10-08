@@ -10,6 +10,9 @@ import BoxUtils._
 import BoxTypes._
 import BoxScriptImports._
 
+import scalaz._
+import Scalaz._
+
 object VerticalTabLayout {
   def apply(tabWidth:Int = 64, tabHeight:Int = 64) = new VerticalTabLayout(tabWidth, tabHeight)
 }
@@ -34,12 +37,12 @@ class VerticalTabLayout(val tabWidth:Int, val tabHeight:Int) extends LayoutManag
 
 case class TabBuilder(toggles: List[Box[Boolean]] = List(), tabComponents: List[JComponent] = List(), contentComponents: List[JComponent] = List()) {
 
-  def add(contents: JComponent, name: Option[Box[String]], icon: Option[Box[Icon]] = None, v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = {
+  def add(contents: JComponent, name: BoxR[String], icon: BoxR[Option[Icon]] = just(None), v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = {
     val view = BooleanView.extended(v, name, Tab, icon, false)    
     TabBuilder(toggles:::List(v), tabComponents:::List(view.component), contentComponents:::List(contents))
   }
 
-  def addView(contents: SwingView, name: Option[Box[String]], icon: Option[Box[Icon]] = None, v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = add(contents.component, name, icon, v)
+  def addView(contents: SwingView, name: BoxR[String], icon: BoxR[Option[Icon]] = just(None), v: Box[Boolean] = atomic(create(toggles.isEmpty))): TabBuilder = add(contents.component, name, icon, v)
 
   def panel(width:Int = 64, height:Int = 64) = {
     atomic(RadioReaction(toggles))
@@ -54,18 +57,19 @@ case class TabBuilder(toggles: List[Box[Boolean]] = List(), tabComponents: List[
     contentComponents.zipWithIndex.foreach{case(c, i) => contentPanel.add(c, i.toString)}
 
     //Show the selected content panel card
-    val showCardObserver = Observer{ r =>
-      val index = toggles.indexWhere(_(r))
-      SwingView.replaceUpdate(this, cardLayout.show(contentPanel, index.toString))
+    val observer = SwingView.observer(this, toggles.traverse(_())){ t => 
+      val index = t.indexWhere(b => b)
+      cardLayout.show(contentPanel, index.toString)
     }
-    atomic(observe(showCardObserver))
+
+    atomic(observe(observer))
 
     val sidePanel = new JPanel(new BorderLayout())
     sidePanel.add(tabPanel, BorderLayout.NORTH)
     sidePanel.add(TabSpacer(), BorderLayout.CENTER)
 
     //Observer would be lost if not retained by panel
-    val panel = new LinkingJPanel(showCardObserver, new BorderLayout())
+    val panel = new LinkingJPanel(observer, new BorderLayout())
     panel.add(sidePanel, BorderLayout.WEST)
     panel.add(contentPanel, BorderLayout.CENTER)
     panel

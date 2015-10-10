@@ -19,9 +19,9 @@ class BoxesSpinnerLayout extends LayoutManager {
   val components = mutable.HashMap[String, Component]()
   val acceptedNames = Set("Next", "Previous", "Editor")
 
-  override def addLayoutComponent(name:String, c:Component) = if (acceptedNames.contains(name)) components.put(name, c)
+  override def addLayoutComponent(name: String, c: Component) = if (acceptedNames.contains(name)) components.put(name, c)
 
-  override def removeLayoutComponent(c:Component) {
+  override def removeLayoutComponent(c: Component) {
     components.find(entry => entry._2 == c).foreach(entry => components.remove(entry._1))
   }
 
@@ -32,9 +32,9 @@ class BoxesSpinnerLayout extends LayoutManager {
     }
   }
 
-  override def minimumLayoutSize(parent:Container) = preferredLayoutSize(parent)
+  override def minimumLayoutSize(parent: Container) = preferredLayoutSize(parent)
 
-  override def layoutContainer(parent:Container) {
+  override def layoutContainer(parent: Container) {
     val width = parent.getWidth
     val height = parent.getHeight
 
@@ -49,7 +49,7 @@ class BoxesSpinnerLayout extends LayoutManager {
   }
 }
 
-class SpinnerButton(up:Boolean) extends EPButton {
+class SpinnerButton(up: Boolean) extends EPButton {
   {
     setBorder(null)
     setContentAreaFilled(false)
@@ -82,13 +82,13 @@ class BoxesSpinnerUI extends BasicSpinnerUI {
     editor
   }
 
-  override def replaceEditor(oldEditor:JComponent, newEditor:JComponent) {
+  override def replaceEditor(oldEditor: JComponent, newEditor: JComponent) {
     spinner.remove(oldEditor)
     configureEditorBorder(newEditor)
     spinner.add(newEditor, "Editor")
   }
 
-  def configureEditorBorder(editor:JComponent) {
+  def configureEditorBorder(editor: JComponent) {
     editor match {
       case defaultEditor:JSpinner.DefaultEditor => {
         val editorField = defaultEditor.getTextField()
@@ -104,7 +104,7 @@ class BoxesSpinnerUI extends BasicSpinnerUI {
 
 }
 
-class ArrowPartPainter(image:Image, up:Boolean) {
+class ArrowPartPainter(image: Image, up: Boolean) {
   val part = {
     if (up) {
       ImageUtils.getSubImage(image, 0, BoxesSpinnerLayout.height/2, BoxesSpinnerLayout.spinnerButtonWidth, BoxesSpinnerLayout.height/2)
@@ -118,7 +118,7 @@ class ArrowPartPainter(image:Image, up:Boolean) {
   }
 }
 
-class ArrowPartPainters(up:Boolean) {
+class ArrowPartPainters(up: Boolean) {
   def partPainter(resource:String, up:Boolean) = new ArrowPartPainter(IconFactory.image(resource), up)
   val plain = partPainter("SpinnerButtons", up)
   val disabled = partPainter("SpinnerButtonsDisabled", up)
@@ -132,11 +132,11 @@ object ArrowPainter {
   def direction(isUp:Boolean) = if (isUp) up else down
 }
 
-class SpinnerButtonPainter(val up:Boolean) extends MacWidgetsPainter[AbstractButton] {
+class SpinnerButtonPainter(val up: Boolean) extends MacWidgetsPainter[AbstractButton] {
 
   val painter = ArrowPainter.direction(up)
 
-  override def paint(g:Graphics2D, b:AbstractButton, w:Int, h:Int) {
+  override def paint(g: Graphics2D, b: AbstractButton, w: Int, h: Int) {
     if (b.getModel.isSelected || b.getModel.isPressed) {
       painter.pressed.paint(g, w, h)
     } else if (b.getModel.isEnabled) {

@@ -34,7 +34,7 @@ class BoxesProgressUI extends BasicProgressBarUI {
 
   }
 
-  private def paintString(g: Graphics, width: Int, height: Int, fillEndX:Int): Unit = {
+  private def paintString(g: Graphics, width: Int, height: Int, fillEndX: Int): Unit = {
     val g2 = g.asInstanceOf[Graphics2D]
     val s = progressBar.getString
     g2.setFont(progressBar.getFont)

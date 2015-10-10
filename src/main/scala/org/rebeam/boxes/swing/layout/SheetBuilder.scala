@@ -18,7 +18,7 @@ class SheetBuilder(minContentsWidth: Int = 100) {
 
   builder.setLineGapSize(new ConstantSize(2, ConstantSize.PIXEL))
 
-  def separator(text:String) = {
+  def separator(text: String) = {
     val label = HeaderLabel(text, topLine = builder.getRowCount() != 0)
     builder.append(label, 6)
     this
@@ -38,7 +38,7 @@ class SheetBuilder(minContentsWidth: Int = 100) {
     this
   }
 
-  def component(label:String, component:JComponent, grow:Boolean = false) = {
+  def component(label: String, component: JComponent, grow: Boolean = false) = {
     if (grow) {
       builder.appendRow("fill:pref:grow")
     } else {
@@ -55,7 +55,7 @@ class SheetBuilder(minContentsWidth: Int = 100) {
     this
   }
 
-  def view(label:String, view:SwingView, grow:Boolean = false) = component(label, view.component, grow)
+  def view(label: String, view: SwingView, grow: Boolean = false) = component(label, view.component, grow)
 
   def panel = {
     //TODO find better way to get bottom gap

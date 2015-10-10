@@ -30,13 +30,13 @@ import BoxScriptImports._
 import scala.language.implicitConversions
 
 // object SwingViewImplicits {
-//   implicit def varToBooleanView(v : Var[Boolean]) = BooleanView(v)
-//   implicit def varToNumberView[N](v : Var[N])(implicit n:Numeric[N], nc:NumericClass[N]) = NumberView[N](v)
-//   implicit def varToStringView(v : Var[String]) = StringView(v)
+//   implicit def varToBooleanView(v: Var[Boolean]) = BooleanView(v)
+//   implicit def varToNumberView[N](v: Var[N])(implicit n: Numeric[N], nc: NumericClass[N]) = NumberView[N](v)
+//   implicit def varToStringView(v: Var[String]) = StringView(v)
 
-//   implicit def optionVarToBooleanView(v : Var[Option[Boolean]]) = BooleanOptionView(v)
-//   implicit def optionVarToNumberView[N](v : Var[Option[N]])(implicit n:Numeric[N], nc:NumericClass[N]) = NumberOptionView[N](v)
-//   implicit def optionVarToStringView(v : Var[Option[String]]) = StringOptionView(v)
+//   implicit def optionVarToBooleanView(v: Var[Option[Boolean]]) = BooleanOptionView(v)
+//   implicit def optionVarToNumberView[N](v: Var[Option[N]])(implicit n: Numeric[N], nc: NumericClass[N]) = NumberOptionView[N](v)
+//   implicit def optionVarToStringView(v: Var[Option[String]]) = StringOptionView(v)
 // }
 
 object SwingView {
@@ -47,9 +47,9 @@ object SwingView {
   val responder = new CoalescingResponder(respond)
   val lock = new Object()
   
-  def format(d:Double) = defaultDecimalFormat.format(d)
+  def format(d: Double) = defaultDecimalFormat.format(d)
 
-  def icon(name:String) = IconFactory.icon(name)
+  def icon(name: String) = IconFactory.icon(name)
 
   val wrench = icon("Wrench")
 
@@ -57,7 +57,7 @@ object SwingView {
     def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
   })
 
-  def addUpdate(v:Any, update: => Unit) = {
+  def addUpdate(v: Any, update: => Unit) = {
     lock.synchronized{
       viewToUpdates.get(v) match {
         case None => viewToUpdates.put(v, mutable.ArrayBuffer(() => update))
@@ -67,7 +67,7 @@ object SwingView {
     }
   }
 
-  def replaceUpdate(v:Any, update: => Unit) = {
+  def replaceUpdate(v: Any, update: => Unit) = {
     lock.synchronized{
       viewToUpdates.put(v, mutable.ArrayBuffer(() => update))
       responder.request
@@ -132,7 +132,7 @@ object SwingView {
     }
   }
   
-  def swingRun(r : => Unit) {
+  def swingRun(r: => Unit) {
     SwingUtilities.invokeLater(new Runnable(){
       override def run = r
     })
@@ -163,20 +163,20 @@ object SwingView {
   val textUnderlightColor = new Color(255, 255, 255, 160)
   val shadedBoxColor = new Color(0,0,0,0.6f)
 
-  def clip(value:Int, min:Int, max:Int) = {
+  def clip(value: Int, min: Int, max: Int) = {
     if (value < min) min
     else if (value > max) max
     else value
   }
 
-  def transparentColor(c:Color, factor:Double) = {
+  def transparentColor(c: Color, factor: Double) = {
     new Color(  c.getRed,
                 c.getGreen,
                 c.getBlue,
                 clip((c.getAlpha() * factor).asInstanceOf[Int], 0, 255))
   }
 
-  def graphicsForEnabledState(g:Graphics2D, e:Boolean) {
+  def graphicsForEnabledState(g: Graphics2D, e: Boolean) {
     if (!e) g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f))
   }
 
@@ -191,16 +191,16 @@ object SwingView {
 }
 
 trait SwingView {
-  def component():JComponent
+  def component(): JComponent
 
   private def observer[A](script: BoxScript[A])(effect: A => Unit): Observer = SwingView.observer(this, script)(effect)
 }
 
 //Special versions of components that link back to the SwingView using them,
 //so that if users only retain the component, they still also retain the SwingView.
-class LinkingJLabel(val sv:SwingView) extends Label {}
+class LinkingJLabel(val sv: SwingView) extends Label {}
 
-class LinkingTextEPPanel(val sv:SwingView, contents:Component) extends EPPanel {
+class LinkingTextEPPanel(val sv: SwingView, contents: Component) extends EPPanel {
   setBackgroundPainter(new TextComponentPainter())
   setBorder(new EmptyBorder(7,8,4,4))
   setLayout(new BorderLayout())
@@ -209,9 +209,9 @@ class LinkingTextEPPanel(val sv:SwingView, contents:Component) extends EPPanel {
 
 //Special versions of components that link back to the SwingView using them,
 //so that if users only retain the component, they still also retain the SwingView.
-class LinkingJScrollPane(val sv:SwingView, contents:Component) extends JScrollPane(contents)
+class LinkingJScrollPane(val sv: SwingView, contents: Component) extends JScrollPane(contents)
 
-class LinkingTextJScrollPane(val sv:SwingView, contents:Component) extends JScrollPane(contents) {
+class LinkingTextJScrollPane(val sv: SwingView, contents: Component) extends JScrollPane(contents) {
   BoxesScrollBarUI.applyTo(this, plain = true)
   val lowerRightCorner = new EPPanel()
   lowerRightCorner.setBackgroundPainter(new WhitePainter())
@@ -221,44 +221,44 @@ class LinkingTextJScrollPane(val sv:SwingView, contents:Component) extends JScro
 }
 
 
-class LinkingJTextField(val sv:SwingView) extends JTextField {
+class LinkingJTextField(val sv: SwingView) extends JTextField {
   BoxesTextFieldUI(this)
 }
 
-class BoxesJTextArea(r:Int, c:Int) extends JTextArea(r, c) {
+class BoxesJTextArea(r: Int, c: Int) extends JTextArea(r, c) {
   BoxesTextAreaUI(this)
 }
 
 object Label {
-  def apply(text:String, icon:Option[Icon] = None, horizontalAlignment:Int = SwingConstants.LEFT) = new Label(text, icon, horizontalAlignment)
+  def apply(text: String, icon: Option[Icon] = None, horizontalAlignment: Int = SwingConstants.LEFT) = new Label(text, icon, horizontalAlignment)
 }
 
-class Label(text:String="", icon:Option[Icon] = None, horizontalAlignment:Int = SwingConstants.LEFT) extends JLabel(text, icon.getOrElse(null), horizontalAlignment) {
+class Label(text: String="", icon: Option[Icon] = None, horizontalAlignment: Int = SwingConstants.LEFT) extends JLabel(text, icon.getOrElse(null), horizontalAlignment) {
   {
     setBorder(new EmptyBorder(7, 2, 6, 2))
   }
 }
 
-class LinkingSlideCheckButton(val sv:SwingView) extends SlideCheckButton
+class LinkingSlideCheckButton(val sv: SwingView) extends SlideCheckButton
 
-class LinkingTabButton(val sv:SwingView) extends TabButton
+class LinkingTabButton(val sv: SwingView) extends TabButton
 
-class LinkingJCheckBox(val sv:SwingView) extends BoxesCheckBox
+class LinkingJCheckBox(val sv: SwingView) extends BoxesCheckBox
 
-class LinkingJRadioButton(val sv:SwingView) extends BoxesRadioButton
+class LinkingJRadioButton(val sv: SwingView) extends BoxesRadioButton
 
-class LinkingJToggleButton(val sv:SwingView) extends SwingToggleButton
+class LinkingJToggleButton(val sv: SwingView) extends SwingToggleButton
 
-class LinkingToolbarToggleButton(val sv:SwingView) extends SwingBarToggleButton
+class LinkingToolbarToggleButton(val sv: SwingView) extends SwingBarToggleButton
 
 
 
-class LinkingJSlider(val sv:SwingView, brm:BoundedRangeModel) extends JSlider(brm) {
+class LinkingJSlider(val sv: SwingView, brm: BoundedRangeModel) extends JSlider(brm) {
   {
     setUI(new BoxesSliderUI(this))
   }
 }
-class LinkingJProgressBar(val sv:SwingView, brm:BoundedRangeModel) extends JProgressBar(brm) {
+class LinkingJProgressBar(val sv: SwingView, brm: BoundedRangeModel) extends JProgressBar(brm) {
   {
     setUI(new BoxesProgressUI())
   }
@@ -269,12 +269,12 @@ object PiePainter {
   val defaultFill = SwingView.selectionColor
   val defaultOutline = Color.white
 
-  def apply(border:Int = 3, dotRadius:Int = 2, fill:Color = defaultFill, outline:Color = defaultOutline, justDot:Boolean = false) = new PiePainter(border, dotRadius, fill, outline, justDot)
+  def apply(border: Int = 3, dotRadius: Int = 2, fill: Color = defaultFill, outline: Color = defaultOutline, justDot: Boolean = false) = new PiePainter(border, dotRadius, fill, outline, justDot)
 }
 
-class PiePainter(val border:Int, val dotRadius:Int, val fill:Color, val outline:Color, val justDot:Boolean) {
+class PiePainter(val border: Int, val dotRadius: Int, val fill: Color, val outline: Color, val justDot: Boolean) {
 
-  def paint(g:Graphics2D, n:Double, w:Int, h:Int, alpha:Double = 1) {
+  def paint(g: Graphics2D, n: Double, w: Int, h: Int, alpha: Double = 1) {
 
     val oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING)
     val oldFM = g.getRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS)
@@ -315,9 +315,9 @@ class PiePainter(val border:Int, val dotRadius:Int, val fill:Color, val outline:
   }
 }
 
-class LinkingEPPanel(val sv:SwingView) extends EPPanel {}
+class LinkingEPPanel(val sv: SwingView) extends EPPanel {}
 
-class LinkingJSpinner(val sv:SwingView, m:SpinnerModel) extends JSpinner(m) {
+class LinkingJSpinner(val sv: SwingView, m: SpinnerModel) extends JSpinner(m) {
   {
     this.setUI(new BoxesSpinnerUI())
     this.setMinimumSize(new Dimension(60, 28))
@@ -326,17 +326,17 @@ class LinkingJSpinner(val sv:SwingView, m:SpinnerModel) extends JSpinner(m) {
 }
 
 object BoxesScrollPane {
-  def apply(component:JComponent, horizontal:Boolean = false, vertical:Boolean = true) = {
+  def apply(component: JComponent, horizontal: Boolean = false, vertical: Boolean = true) = {
     val scroll = new JScrollPane(component)
     BoxesScrollBarUI.applyTo(scroll, horizontal = horizontal, vertical = vertical)
     scroll
   }
-  def horizontal(component:JComponent) = {
+  def horizontal(component: JComponent) = {
     val scroll = new JScrollPane(component)
     BoxesScrollBarUI.applyTo(scroll, new DotModel, new DotModel, true, false)
     scroll
   }
-  def vertical(component:JComponent) = {
+  def vertical(component: JComponent) = {
     val scroll = new JScrollPane(component)
     BoxesScrollBarUI.applyTo(scroll, new DotModel, new DotModel, false, true)
     scroll

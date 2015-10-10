@@ -10,7 +10,7 @@ import org.rebeam.boxes.swing.icons.IconFactory
 import java.awt.event.{WindowFocusListener, WindowEvent, WindowListener, WindowStateListener, ComponentListener, ComponentEvent}
 import java.awt.Point
 
-private class BoxesPopupButtonHandler(popupComponent:Component, focusComponent:Option[Component], invoker:Component) extends WindowListener with ComponentListener {
+private class BoxesPopupButtonHandler(popupComponent: Component, focusComponent: Option[Component], invoker: Component) extends WindowListener with ComponentListener {
 
   private val xOffset = 3
 

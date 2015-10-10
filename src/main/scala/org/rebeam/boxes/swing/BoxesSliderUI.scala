@@ -13,7 +13,7 @@ object BoxesSliderUI {
   val handleSelectImage = IconFactory.image("SliderHandleSelect")
 }
 
-class BoxesSliderUI(b:JSlider) extends BasicSliderUI(b) {
+class BoxesSliderUI(b: JSlider) extends BasicSliderUI(b) {
 
   override def installDefaults(slider:JSlider) {
     super.installDefaults(slider)

@@ -126,17 +126,17 @@ private class BoxesPopupButtonHandler(popupComponent: Component, focusComponent:
 }
 
 object PopupView {
-  def apply(n: Box[String], icon: Option[Box[Icon]] = None, popupContents: JComponent) = new PopupView(n, icon, popupContents)
+  def apply(n: BoxR[String], icon: BoxR[Option[Icon]] = just(None), popupContents: JComponent) = new PopupView(n, icon, popupContents)
 }
 
-class PopupView(n: Box[String], icon: Option[Box[Icon]] = None, popupContents: JComponent) extends SwingView {
+class PopupView(n: BoxR[String], icon: BoxR[Option[Icon]] = just(None), popupContents: JComponent) extends SwingView {
 
   val component: JToggleButton = new ToolbarPopupButton(this)
 
   val observer = {
     val script = for {
-      newN <- n()
-      newIcon <- icon.traverseU(_())
+      newN <- n
+      newIcon <- icon
     } yield (newN, newIcon)
     SwingView.observer(this, script){v => display(v._1, v._2)}
   }

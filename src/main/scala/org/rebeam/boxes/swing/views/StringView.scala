@@ -9,11 +9,12 @@ import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
 import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
+import BoxTypes._
 import BoxUtils._
 import BoxScriptImports._
 
 object StringView {
-  def apply(v:Box[String], multiline:Boolean = false) = new StringOptionView(v, new TConverter[String], multiline).asInstanceOf[SwingView]
+  def apply(v: BoxM[String], multiline: Boolean = false) = new StringOptionView(v, new TConverter[String], multiline).asInstanceOf[SwingView]
 //  def apply(v:Box[String], multiline:Boolean)(implicit shelf: Shelf) = new StringOptionView(v, new TConverter[String], multiline).asInstanceOf[SwingView]
 //  def apply(v:Box[Option[String]], multiline:Boolean)(implicit shelf: Shelf, d: DummyImplicit) = new StringOptionView(v, new OptionTConverter[String], multiline).asInstanceOf[SwingView]
 //  def apply(v:Box[String])(implicit shelf: Shelf) = new StringOptionView(v, new TConverter[String], false).asInstanceOf[SwingView]
@@ -21,10 +22,10 @@ object StringView {
 }
 
 object StringOptionView {
-  def apply(v:Box[Option[String]], multiline:Boolean = false) = new StringOptionView(v, new OptionTConverter[String], multiline).asInstanceOf[SwingView]
+  def apply(v: BoxM[Option[String]], multiline: Boolean = false) = new StringOptionView(v, new OptionTConverter[String], multiline).asInstanceOf[SwingView]
 }
 
-private class StringOptionView[G](v:Box[G], c:GConverter[G, String], multiline:Boolean) extends SwingView {
+private class StringOptionView[G](v: BoxM[G], c: GConverter[G, String], multiline: Boolean) extends SwingView {
 
   val text = if (multiline) new BoxesJTextArea(1, 1) else new LinkingJTextField(this)
   

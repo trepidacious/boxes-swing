@@ -20,14 +20,14 @@ import BoxTypes._
 import BoxScriptImports._
 
 object RangeView {
-  def apply(v: Box[Int], min: Int, max: Int, progress: Boolean = false) = new RangeOptionView(v, min, max, new TConverter[Int], progress).asInstanceOf[SwingView]
+  def apply(v: BoxM[Int], min: Int, max: Int, progress: Boolean = false) = new RangeOptionView(v, min, max, new TConverter[Int], progress).asInstanceOf[SwingView]
 }
 
 object RangeOptionView {
-  def apply(v: Box[Option[Int]], min: Int, max: Int, progress: Boolean = false) = new RangeOptionView(v, min, max, new OptionTConverter[Int], progress).asInstanceOf[SwingView]
+  def apply(v: BoxM[Option[Int]], min: Int, max: Int, progress: Boolean = false) = new RangeOptionView(v, min, max, new OptionTConverter[Int], progress).asInstanceOf[SwingView]
 }
 
-private class RangeOptionView[G](v: Box[G], min: Int, max: Int, c: GConverter[G, Int], progress: Boolean) extends SwingView {
+private class RangeOptionView[G](v: BoxM[G], min: Int, max: Int, c: GConverter[G, Int], progress: Boolean) extends SwingView {
 
   private val model = new AutoBoundedRangeModel(min, max)
 

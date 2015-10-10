@@ -21,14 +21,14 @@ import BoxTypes._
 import BoxScriptImports._
 
 object PieView {
-  def apply(n:Box[Double], a:Box[Double]) = new PieOptionView(n, new TConverter[Double], a, new TConverter[Double]).asInstanceOf[SwingView]
+  def apply(n: BoxR[Double], a: BoxR[Double]) = new PieOptionView(n, new TConverter[Double], a, new TConverter[Double]).asInstanceOf[SwingView]
 }
 
 object PieOptionView {
-  def apply(n:Box[Option[Double]], a:Box[Option[Double]]) = new PieOptionView(n, new OptionTConverter[Double], a, new OptionTConverter[Double]).asInstanceOf[SwingView]
+  def apply(n: BoxR[Option[Double]], a: BoxR[Option[Double]]) = new PieOptionView(n, new OptionTConverter[Double], a, new OptionTConverter[Double]).asInstanceOf[SwingView]
 }
 
-private class PieOptionView[G, H](n: Box[G], c: GConverter[G, Double], a: Box[H], d: GConverter[H, Double]) extends SwingView {
+private class PieOptionView[G, H](n: BoxR[G], c: GConverter[G, Double], a: BoxR[H], d: GConverter[H, Double]) extends SwingView {
 
   val pie = PiePainter()
 
@@ -51,8 +51,8 @@ private class PieOptionView[G, H](n: Box[G], c: GConverter[G, Double], a: Box[H]
   val observer = {
     //TODO use applicative or similar to make this neater
     val script = for {
-      newN <- n()
-      newA <- a()
+      newN <- n
+      newA <- a
     } yield (newN, newA)  
 
     SwingView.observer(this, script){case (newN, newA) => {

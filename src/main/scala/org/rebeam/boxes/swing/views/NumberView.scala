@@ -19,16 +19,16 @@ import BoxTypes._
 import BoxScriptImports._
 
 object NumberView {
-  def apply[N](v: Box[N])(implicit n: Numeric[N], nc: NumericClass[N]): SwingView = apply(v, nc.defaultSequence)
-  def apply[N](v: Box[N], s: Sequence[N])(implicit n: Numeric[N], nc: NumericClass[N]) = new NumberOptionView(v, s, new TConverter[N], n, nc).asInstanceOf[SwingView]
+  def apply[N](v: BoxM[N])(implicit n: Numeric[N], nc: NumericClass[N]): SwingView = apply(v, nc.defaultSequence)
+  def apply[N](v: BoxM[N], s: Sequence[N])(implicit n: Numeric[N], nc: NumericClass[N]) = new NumberOptionView(v, s, new TConverter[N], n, nc).asInstanceOf[SwingView]
 }
 
 object NumberOptionView {
-  def apply[N](v:Box[Option[N]])(implicit n:Numeric[N], nc:NumericClass[N]): SwingView = apply(v, nc.defaultSequence)
-  def apply[N](v:Box[Option[N]], s:Sequence[N])(implicit n:Numeric[N], nc:NumericClass[N]): SwingView = new NumberOptionView(v, s, new OptionTConverter[N], n, nc).asInstanceOf[SwingView]
+  def apply[N](v:BoxM[Option[N]])(implicit n:Numeric[N], nc:NumericClass[N]): SwingView = apply(v, nc.defaultSequence)
+  def apply[N](v:BoxM[Option[N]], s:Sequence[N])(implicit n:Numeric[N], nc:NumericClass[N]): SwingView = new NumberOptionView(v, s, new OptionTConverter[N], n, nc).asInstanceOf[SwingView]
 }
 
-private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G, N], n: Numeric[N], nc: NumericClass[N]) extends SwingView {
+private class NumberOptionView[G, N](v: BoxM[G], s: Sequence[N], c: GConverter[G, N], n: Numeric[N], nc: NumericClass[N]) extends SwingView {
 
   private val model = new AutoSpinnerModel()
   val component = new LinkingJSpinner(this, model)
@@ -47,7 +47,7 @@ private class NumberOptionView[G, N](v: Box[G], s: Sequence[N], c: GConverter[G,
           try {
             component.commitEdit()
           } catch {
-            case e:ParseException => update(v(Shelf.currentRevision))
+            case e:ParseException => update(atomic{v()})
           }
         }
 

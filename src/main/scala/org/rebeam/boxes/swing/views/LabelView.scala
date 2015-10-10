@@ -11,13 +11,14 @@ import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
 import BoxUtils._
 import BoxScriptImports._
+import BoxTypes._
 
 //TODO use a renderer to customise display
-private class LabelOptionView[G](v: Box[G], c: GConverter[G, String]) extends SwingView {
+private class LabelOptionView[G](v: BoxR[G], c: GConverter[G, String]) extends SwingView {
 
   val component = new LinkingJLabel(this)
 
-  val observer = SwingView.observer(this, v()){display(_)}
+  val observer = SwingView.observer(this, v){display(_)}
 
   atomic{
     import BoxScriptImports._
@@ -25,7 +26,7 @@ private class LabelOptionView[G](v: Box[G], c: GConverter[G, String]) extends Sw
   } 
 
   //Update display if necessary
-  private def display(s:G) {
+  private def display(s: G) {
     val text = c.toOption(s) match {
       case None => ""
       case Some(string) => string
@@ -37,15 +38,15 @@ private class LabelOptionView[G](v: Box[G], c: GConverter[G, String]) extends Sw
 }
 
 object LabelView {
-  def apply(v:Box[String]) = new LabelOptionView(v, new TConverter[String]).asInstanceOf[SwingView]
+  def apply(v: BoxR[String]) = new LabelOptionView(v, new TConverter[String]).asInstanceOf[SwingView]
 }
 
 object LabelOptionView {
-  def apply(v:Box[Option[String]]) = new LabelOptionView(v, new OptionTConverter[String]).asInstanceOf[SwingView]
+  def apply(v: BoxR[Option[String]]) = new LabelOptionView(v, new OptionTConverter[String]).asInstanceOf[SwingView]
 }
 
 object EmbossedLabelView {
-  def apply(v:Box[String]) = {
+  def apply(v: BoxR[String]) = {
     val view = new LabelOptionView(v, new TConverter[String])
     view.component.setUI(new EmbossedLabelUI())
     view.asInstanceOf[SwingView]
@@ -53,7 +54,7 @@ object EmbossedLabelView {
 }
 
 object EmbossedLabelOptionView {
-  def apply(v:Box[Option[String]]) = {
+  def apply(v: BoxR[Option[String]]) = {
     val view = new LabelOptionView(v, new OptionTConverter[String]) 
     view.component.setUI(new EmbossedLabelUI())
     view.asInstanceOf[SwingView]

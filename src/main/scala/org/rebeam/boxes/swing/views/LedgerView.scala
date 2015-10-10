@@ -61,7 +61,7 @@ object LedgerView {
     val lv = new LedgerView(v)
     lv.component.setSelectionModel(new ListSelectionIndexModel(i, !lv.component.isRespondingToChange, lv.component))
 
-    val iAsSet = atomic(cal(i().map(_.toSet)))
+    val iAsSet = i().map(_.toSet)
 
     val lsv = new LedgerScrollView(lv, v, iAsSet)
       
@@ -191,7 +191,7 @@ object LedgerView {
 //  }
 }
 
-class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val indices: Box[Set[Int]]) extends SwingView {
+class LedgerScrollView(val ledgerView: LedgerView, val ledger: BoxR[Ledger], val indices: BoxR[Set[Int]]) extends SwingView {
   val component = new LinkingJScrollPane(this, ledgerView.component)
   val dotModel = new DotModel()
 
@@ -201,9 +201,9 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: Box[Ledger], val 
   //FIXME applicative?
   val observer = {
     val script = for {
-      l <- ledger()
+      l <- ledger
       scale <- l.recordCount
-      is <- indices()
+      is <- indices
     } yield (scale, is)
     SwingView.observer(this, script){ case (scale, is) =>
       val viewIndices = is.map(i => indexToView(i)).filter(i => i >= 0).toList.sorted

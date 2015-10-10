@@ -67,14 +67,10 @@ object LedgerDemoApp extends App {
     
     val i = li.index
     
-    val selectedName = atomic { 
-      cal(
-        for {
-          s <- li.selected()
-          n <- s.traverseU(_.name())
-        } yield n.getOrElse("No selection")
-      )
-    }
+    val selectedName = for {
+      s <- li.selected()
+      n <- s.traverseU(_.name())
+    } yield n.getOrElse("No selection")
 
     val selectedNameView = LabelView(selectedName)
     

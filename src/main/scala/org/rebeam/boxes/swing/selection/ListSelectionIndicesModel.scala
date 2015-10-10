@@ -7,6 +7,7 @@ import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import org.rebeam.boxes.core._
 import org.rebeam.boxes.swing._
+import BoxTypes._
 import BoxUtils._
 import BoxScriptImports._
 
@@ -20,7 +21,7 @@ import BoxScriptImports._
 * TODO Check this handles filtering of the table, it should react
 * to selection of rows that have been filtered out by removing those indices.
 */
-class ListSelectionIndicesModel(v: Box[Set[Int]], setFilter: => Boolean, table: JTable) extends ListSelectionModel {
+class ListSelectionIndicesModel(v: BoxM[Set[Int]], setFilter: => Boolean, table: JTable) extends ListSelectionModel {
 
   val delegate = new DefaultListSelectionModel()
   delegate.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
@@ -95,7 +96,7 @@ class ListSelectionIndicesModel(v: Box[Set[Int]], setFilter: => Boolean, table: 
     //If we are ignoring changes to the delegate, then we need to
     //revert the delegate back to mirroring the Box
     } else {
-      handleBoxChange(v(Shelf.currentRevision))
+      handleBoxChange(atomic{v()})
     }
   }
 

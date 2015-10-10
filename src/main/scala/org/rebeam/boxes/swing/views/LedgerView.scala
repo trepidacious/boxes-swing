@@ -30,13 +30,13 @@ import Scalaz._
 
 object LedgerView {
 
-  def apply(v: Box[Ledger], sorting: Boolean = false) = {
+  def apply(v: BoxM[Ledger], sorting: Boolean = false) = {
     val lv = new LedgerView(v)
     if (sorting) lv.component.setAutoCreateRowSorter(true)
     lv
   }
 
-  def singleSelection(v: Box[Ledger], i: Box[Option[Int]], sorting: Boolean = false) = {
+  def singleSelection(v: BoxM[Ledger], i: BoxM[Option[Int]], sorting: Boolean = false) = {
     val lv = new LedgerView(v)
     //Only allow the selection to be set when the table is NOT responding
     //to a model change.
@@ -49,30 +49,30 @@ object LedgerView {
     lv
   }
   
-  def multiSelection(v: Box[Ledger], i: Box[Set[Int]], sorting: Boolean = false) = {
+  def multiSelection(v: BoxM[Ledger], i: BoxM[Set[Int]], sorting: Boolean = false) = {
     val lv = new LedgerView(v)
     lv.component.setSelectionModel(new ListSelectionIndicesModel(i, !lv.component.isRespondingToChange, lv.component))
     if (sorting) lv.component.setAutoCreateRowSorter(true)
     lv
   }
 
-  def singleSelectionScroll(v: Box[Ledger], i: Box[Option[Int]], sorting: Boolean = false) = {
+  def singleSelectionScroll(v: BoxM[Ledger], i: BoxM[Option[Int]], sorting: Boolean = false) = {
     import BoxScriptImports._
     val lv = new LedgerView(v)
     lv.component.setSelectionModel(new ListSelectionIndexModel(i, !lv.component.isRespondingToChange, lv.component))
 
     val iAsSet = i().map(_.toSet)
 
-    val lsv = new LedgerScrollView(lv, v, iAsSet)
+    val lsv = new LedgerScrollView(lv, v.read, iAsSet)
       
     if (sorting) lv.component.setAutoCreateRowSorter(true)
     lsv
   }
 
-  def multiSelectionScroll(v: Box[Ledger], i: Box[Set[Int]], sorting: Boolean = false) = {
+  def multiSelectionScroll(v: BoxM[Ledger], i: BoxM[Set[Int]], sorting: Boolean = false) = {
     val lv = new LedgerView(v)
     lv.component.setSelectionModel(new ListSelectionIndicesModel(i, !lv.component.isRespondingToChange, lv.component))
-    val lsv = new LedgerScrollView(lv, v, i)
+    val lsv = new LedgerScrollView(lv, v.read, i.read)
     if (sorting) lv.component.setAutoCreateRowSorter(true)
     lsv
   }
@@ -218,25 +218,25 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: BoxR[Ledger], val
   atomic { observe(observer) } 
 
   //Convert a sorted list of ints to a list of starts and lengths of runs of ints
-  def encodeDirect(list:List[Int]) : List[(Int,Int)] = {
+  def encodeDirect(list: List[Int]): List[(Int,Int)] = {
 
-    def encode(result:List[(Int,Int)], n:Int, rl:List[Int]) : List[(Int,Int)] = {
+    def encode(result: List[(Int,Int)], n: Int, rl: List[Int]): List[(Int,Int)] = {
       rl match {
         //If the first two elements are a run, continue any current run
-        case head::next::tail if head == next-1 => encode(result,n+1,next::tail)
+        case head :: next :: tail if head == next - 1 => encode(result, n + 1, next :: tail)
         //Ending a run, with more to encode
-        case head::next::tail => encode(result:::List((head-n, n+1)),0,next::tail)
+        case head :: next :: tail => encode(result ::: List((head - n, n + 1)), 0, next :: tail)
         //Ending a run and no more to encode
-        case head::Nil => result:::List((head-n, n+1))
+        case head :: Nil => result ::: List((head - n, n + 1))
         //Single stage of encoding an empty list
         case Nil => result
       }
     }
 
-    encode(Nil,0,list)
+    encode(Nil, 0, list)
   }
 
-  def indexToView(i:Int):Int = {
+  def indexToView(i: Int): Int = {
     try {
       table.convertRowIndexToView(i)
     } catch {
@@ -246,7 +246,7 @@ class LedgerScrollView(val ledgerView: LedgerView, val ledger: BoxR[Ledger], val
   }
 }
 
-class LedgerView(v: Box[Ledger]) extends SwingView {
+class LedgerView(v: BoxM[Ledger]) extends SwingView {
 
   var lastFieldNames: Option[List[String]] = None
   var lastFieldClasses: Option[List[Class[_]]] = None
@@ -271,7 +271,7 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
     override def isCellEditable(rowIndex:Int, columnIndex:Int) = atomic { 
       v().flatMap(_.editable(rowIndex, columnIndex)) 
     }
-    override def setValueAt(aValue:Object, rowIndex:Int, columnIndex:Int) = atomic { 
+    override def setValueAt(aValue: Object, rowIndex: Int, columnIndex: Int) = atomic { 
       for {
         l <- v()
         l2 <- l.updated(rowIndex, columnIndex, aValue)
@@ -331,19 +331,19 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
 
   atomic { observe(observer) } 
 
-  def defaultEditor(columnClass:Class[_]) = component.getDefaultEditor(columnClass)
+  def defaultEditor(columnClass: Class[_]) = component.getDefaultEditor(columnClass)
   def defaultRenderer(columnClass:Class[_]) = component.getDefaultRenderer(columnClass)
 
-  def defaultEditor(columnClass:Class[_], editor:TableCellEditor) {
+  def defaultEditor(columnClass: Class[_], editor: TableCellEditor) {
     component.setDefaultEditor(columnClass, editor);
   }
 
-  def defaultRenderer(columnClass:Class[_], renderer:TableCellRenderer) {
+  def defaultRenderer(columnClass: Class[_], renderer: TableCellRenderer) {
     component.setDefaultRenderer(columnClass, renderer);
   }
 
   def rowHeight = component.getRowHeight
-  def rowHeight_=(rowHeight:Int) = component.setRowHeight(rowHeight)
+  def rowHeight_=(rowHeight: Int) = component.setRowHeight(rowHeight)
 
   def removeHeader() = component.setTableHeader(null)
 
@@ -363,7 +363,7 @@ class LedgerView(v: Box[Ledger]) extends SwingView {
   }
 }
 
-class LinkingJTable(val sv:SwingView, m:TableModel) extends JTable(m) {
+class LinkingJTable(val sv: SwingView, m: TableModel) extends JTable(m) {
 
   getTableHeader().setDefaultRenderer(new BoxesTableCellHeaderRenderer())
 

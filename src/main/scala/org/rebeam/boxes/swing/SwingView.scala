@@ -23,9 +23,12 @@ import java.util.concurrent.Executor
 import java.awt.LayoutManager
 
 import org.rebeam.boxes.core._
+import org.rebeam.boxes.core.util._
 import BoxUtils._
 import BoxTypes._
 import BoxScriptImports._
+
+import java.util.concurrent.{ExecutorService, Executors, Executor}
 
 import scala.language.implicitConversions
 
@@ -41,6 +44,10 @@ import scala.language.implicitConversions
 
 object SwingView {
 
+  val defaultExecutorPoolSize = 8
+  val defaultThreadFactory = DaemonThreadFactory()
+  lazy val defaultExecutor: Executor = Executors.newFixedThreadPool(defaultExecutorPoolSize, defaultThreadFactory)
+
   val defaultDecimalFormat = new DecimalFormat("0.#")
   val viewToUpdates = new mutable.WeakHashMap[Any, mutable.ArrayBuffer[() => Unit]]()
   //TODO consider using smaller intervals than default. 5, 10 makes graph use very smooth on a good PC. 
@@ -53,9 +60,23 @@ object SwingView {
 
   val wrench = icon("Wrench")
 
-  def observer[A](v: Any, script: BoxScript[A])(effect: A => Unit): Observer = Observer(script, effect, new Executor{
-    def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
-  })
+
+
+  def observer[A](v: Any, script: BoxScript[A])(effect: A => Unit): Observer = Observer(
+    script, 
+    effect, 
+
+    //Run script on our own default executor
+    defaultExecutor,  
+
+    //Run effect in the swing thread, using replace to eliminate pointless updates
+    Some(new Executor {    
+      def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
+    }),
+
+    //Only most recent revisions
+    true
+  )
 
   def addUpdate(v: Any, update: => Unit) = {
     lock.synchronized{

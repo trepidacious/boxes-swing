@@ -64,15 +64,12 @@ object SwingView {
 
   def observer[A](v: Any, script: BoxScript[A])(effect: A => Unit): Observer = Observer(
     script, 
-    effect, 
+
+    //Run effect in the swing thread, using replace to eliminate pointless updates
+    (a: A) => replaceUpdate(v, effect(a)), 
 
     //Run script on our own default executor
     defaultExecutor,  
-
-    //Run effect in the swing thread, using replace to eliminate pointless updates
-    Some(new Executor {    
-      def execute(r: Runnable): Unit = replaceUpdate(v, r.run())
-    }),
 
     //Only most recent revisions
     true

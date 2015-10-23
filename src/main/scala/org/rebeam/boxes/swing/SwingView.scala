@@ -150,13 +150,6 @@ object SwingView {
     }
   }
   
-  def swingRun(r: => Unit) {
-    SwingUtilities.invokeLater(new Runnable(){
-      override def run = r
-    })
-  }
-
-
 //  def nimbox() {
 //    try {
 //      UIManager.setLookAndFeel( new MetalLookAndFeel() )

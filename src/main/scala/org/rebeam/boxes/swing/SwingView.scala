@@ -20,7 +20,7 @@ import java.awt.{BorderLayout, AlphaComposite, Dimension, BasicStroke, Rendering
 import org.rebeam.boxes.swing.icons.IconFactory
 import java.text.DecimalFormat
 import java.util.concurrent.Executor
-import java.awt.LayoutManager
+import java.awt.{Graphics, LayoutManager}
 
 import org.rebeam.boxes.core._
 import org.rebeam.boxes.core.util._
@@ -60,7 +60,7 @@ object SwingView {
 
   val wrench = icon("Wrench")
 
-
+  def scalingOf(g: Graphics) = g.asInstanceOf[Graphics2D].getFontRenderContext().getTransform().getScaleX()
 
   def observer[A](v: Any, script: BoxScript[A])(effect: A => Unit): Observer = Observer(
     script, 

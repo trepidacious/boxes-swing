@@ -57,18 +57,27 @@ private class NumberOptionView[G, N](v: BoxM[G], s: Sequence[N], c: GConverter[G
     }
   }
 
-  val observer = SwingView.observer(this, v()){update(_)}
+  val observer = SwingView.observer(this, v()){v => update(v)}
 
   atomic { observe(observer) } 
 
-  def update(newV: G) = c.toOption(newV) match {
-    case None => {
-      component.setEnabled(false)
-      model.fireNewValue(n.zero)
-    }
-    case Some(someNewV) => {
-      component.setEnabled(true)
-      model.fireNewValue(someNewV)
+  def update(newV: G) = {
+    // println("update(" + newV + ")")
+    c.toOption(newV) match {    
+      case None => {
+        if (component.isEnabled()) {
+          component.setEnabled(false)
+        }
+        // println("update(" + newV + "), will fire new value " + n.zero)
+        model.fireNewValue(n.zero)
+      }
+      case Some(someNewV) => {
+        if (!component.isEnabled()) {
+          component.setEnabled(true)
+        }
+        // println("update(" + newV + "), will fire new value " + someNewV)
+        model.fireNewValue(someNewV)
+      }
     }
   }
 
@@ -82,13 +91,18 @@ private class NumberOptionView[G, N](v: BoxM[G], s: Sequence[N], c: GConverter[G
     var currentValue = n.zero
 
     def fireNewValue(newValue: N) = {
-      currentValue = newValue
+      // println("fireNewValue(" + newValue + "), currentValue " + currentValue)
+      if (currentValue != newValue) {
+        currentValue = newValue
 
-      //TODO - why DOES fireStateChanged end up calling setValue? can we stop it
-      //and avoid the need for firing variable?
-      firing = true
-      fireStateChanged
-      firing = false
+        //TODO - why DOES fireStateChanged end up calling setValue? can we stop it
+        //and avoid the need for firing variable?
+        firing = true
+        // println("fireNewValue firing new value " + newValue)
+        fireStateChanged
+        firing = false
+        // println("fireNewValue has fired new value " + newValue)
+      }
     }
 
     //These three are nasty - but SpinnerNumberModel expects an Object, and we
@@ -98,10 +112,17 @@ private class NumberOptionView[G, N](v: BoxM[G], s: Sequence[N], c: GConverter[G
     override def getValue = currentValue.asInstanceOf[Object]
 
     override def setValue(spinnerValue: Object) {
+      // println("setValue(" + spinnerValue + "), currentValue " + currentValue + ", firing " + firing)
       //Don't respond to our own changes, or incorrect classes
       if (!firing && nc.javaWrapperClass.isAssignableFrom(spinnerValue.getClass)) {
-        currentValue = spinnerValue.asInstanceOf[N]
-        atomic( v() = c.toG(currentValue) )
+      // if (nc.javaWrapperClass.isAssignableFrom(spinnerValue.getClass)) {
+        // currentValue = spinnerValue.asInstanceOf[N]
+        // atomic( v() = c.toG(currentValue) )
+        val newValue = spinnerValue.asInstanceOf[N]
+        val newValueG = c.toG(newValue)
+        // println("setValue will set new value " + newValue)
+        fireNewValue(newValue)
+        atomic{ v() = newValueG }
       }
     }
   }

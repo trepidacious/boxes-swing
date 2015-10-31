@@ -20,6 +20,9 @@ import BoxUtils._
 import BoxTypes._
 import BoxScriptImports._
 
+import scalaz._
+import Scalaz._
+
 object PieView {
   def apply(n: BoxR[Double], a: BoxR[Double]) = new PieOptionView(n, new TConverter[Double], a, new TConverter[Double]).asInstanceOf[SwingView]
 }
@@ -49,16 +52,17 @@ private class PieOptionView[G, H](n: BoxR[G], c: GConverter[G, Double], a: BoxR[
 
   //Update delegate from Box
   val observer = {
-    //TODO use applicative or similar to make this neater
-    val script = for {
-      newN <- n
-      newA <- a
-    } yield (newN, newA)  
+    
+    val script = (n |@| a).tupled
 
     SwingView.observer(this, script){case (newN, newA) => {
-      nDisplay = c.toOption(newN).getOrElse(0d)
-      aDisplay = d.toOption(newA).getOrElse(0d)
-      component.repaint()      
+      val nOrElse = c.toOption(newN).getOrElse(0d)
+      val aOrElse = d.toOption(newA).getOrElse(0d)
+      if (nOrElse != nDisplay || aOrElse != aDisplay) {
+        nDisplay = nOrElse
+        aDisplay = aOrElse
+        component.repaint()              
+      }
     }}
   }
 

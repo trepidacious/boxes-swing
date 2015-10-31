@@ -63,7 +63,9 @@ private class StringOptionView[G](v: BoxM[G], c: GConverter[G, String], multilin
       case None => (false, "")
       case Some(string) => (true, string)
     }
-    text.setEnabled(enableAndText._1)
+    if (text.isEnabled != enableAndText._1) {
+      text.setEnabled(enableAndText._1)
+    }
     if (!text.getText.equals(enableAndText._2)) {
       text.setText(enableAndText._2)
     }

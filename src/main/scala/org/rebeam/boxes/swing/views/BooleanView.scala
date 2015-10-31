@@ -91,15 +91,21 @@ private class BooleanOptionView[G](v: BoxM[G], n: BoxR[String], c: GConverter[G,
   private def display(newV: G, newN: String, newIcon: Option[Icon]) {
     c.toOption(newV) match {
       case None => {
-        model.enabled = false
-        model.selected = false
+        if (model.enabled || model.selected) {
+          model.enabled = false
+          model.selected = false
+          model.fire()
+        }
       }
       case Some(b) => {
-        model.enabled = true
-        model.selected = b
+        if (!model.enabled || model.selected != b) {
+          model.enabled = true
+          model.selected = b
+          model.fire()
+        }
       }
     }
-    model.fire
+
     if (newN != component.getText) {
       component.setText(newN)
     }

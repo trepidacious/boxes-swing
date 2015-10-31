@@ -374,7 +374,7 @@ class LinkingJTable(val sv: SwingView, m: TableModel) extends JTable(m) {
   //initialised. This is why I hate subclassing, but necessary
   //to make a JTable. We initialise responding wherever it first
   //happens to get used.
-  private var responding:AtomicBoolean = null
+  private var responding: AtomicBoolean = null
 
   setDefaultRenderer(classOf[Boolean],  BooleanCellRenderer.opaque)
   setDefaultRenderer(classOf[Char],     defaultRenderer)
@@ -417,31 +417,31 @@ class LinkingJTable(val sv: SwingView, m: TableModel) extends JTable(m) {
   putClientProperty("terminateEditOnFocusLost", true);
 
   //Workaround for bug 4330950, stops editing before starting to move column
-  override def columnMoved(e:TableColumnModelEvent) {
+  override def columnMoved(e: TableColumnModelEvent) {
       if (isEditing()) cellEditor.stopCellEditing()
-      super.columnMoved(e);
+      super.columnMoved(e)
   }
 
   //Workaround for bug 4330950, stops editing before starting to change column
-  override def columnMarginChanged(e:ChangeEvent) {
+  override def columnMarginChanged(e: ChangeEvent) {
       if (isEditing()) cellEditor.stopCellEditing()
-      super.columnMarginChanged(e);
+      super.columnMarginChanged(e)
   }
 
-  override def tableChanged(e:TableModelEvent) {
+  override def tableChanged(e: TableModelEvent) {
     //See note on declaration of responding
     if (responding == null) {
-       responding = new AtomicBoolean(false);
+       responding = new AtomicBoolean(false)
     }
-    responding.set(true);
-    super.tableChanged(e);
-    responding.set(false);
+    responding.set(true)
+    super.tableChanged(e)
+    responding.set(false)
   }
 
   def isRespondingToChange = {
     //See note on declaration of responding
     if (responding == null) {
-       responding = new AtomicBoolean(false);
+       responding = new AtomicBoolean(false)
     }
     responding.get
   }

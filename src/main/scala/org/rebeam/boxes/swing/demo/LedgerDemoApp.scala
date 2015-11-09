@@ -48,7 +48,7 @@ object LedgerDemoApp extends App {
     val p = atomic { Person.default("p", 20) }
     val q = atomic { Person.default("q", 21) }
 
-    val list = atomic { create(IndexedSeq(p, q)) }
+    val list = atomic { create(List(p, q)) }
 
     val view = atomic { 
       create[RecordView[Person]](
@@ -68,7 +68,7 @@ object LedgerDemoApp extends App {
     val i = li.index
     
     val selectedName = for {
-      s <- li.selected()
+      s <- li.selection()
       n <- s.traverseU(_.name())
     } yield n.getOrElse("No selection")
 
